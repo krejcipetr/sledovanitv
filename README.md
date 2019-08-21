@@ -1,5 +1,7 @@
 # sledovanitv
 
+Jako výchozí podklad jsem použil skript od JiRo (XMBC-Kodi.cz)
+
 Soubor skriptu pro implementaci SledovaniTV.cz do tvheadendu a kodi. Diky implementaci do tvheadendu funguje je nahravani a timeshift
 Podporovano je prehravani a EPG
 
