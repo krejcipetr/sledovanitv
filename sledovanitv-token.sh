@@ -15,8 +15,11 @@ if [ -s ${cachefile} ]; then
 fi
 
 if [ -z "${PHPSESSID}" ]; then
-	conf_deviceid=$(jq -r ".device.id" < ${HOME}/sledovanitv/config.json)
-	conf_devauthid=$(jq -r ".device.password" < ${HOME}/sledovanitv/config.json)
+	dir=$(dirname $0)
+
+	
+	conf_deviceid=$(jq -r ".device.id" < ${dir}/config.json)
+	conf_devauthid=$(jq -r ".device.password" < ${dir}/config.json)
 	
 	if [ -z "${conf_deviceid}" -o -z "${conf_devauthid}" ]; then
 		echo "Neexistuje soubor s konfiguraci zarizeni. Pouzijte sledovanitv-register.sh" >> /dev/stderr
