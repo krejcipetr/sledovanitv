@@ -6,14 +6,26 @@ quality=40    # nepovinny parametr (parametr2) prikazove radky, urcuje kvalitu s
 
 source `dirname $0`/sledovanitv-token.sh
 
-playlist=$(wget -qO - "http://sledovanitv.cz/vlc/api-channel/${program}.m3u8?quality=${quality}&capabilities=h265,adaptive&PHPSESSID=${PHPSESSID}")
+playlist=$HOME/.cache/playlist${program}
 
-stream=$(echo ${playlist} | sed -e "s/\ /\n/g" | sed -n 3p)        # extrakce tretiho radku playlistu = adresa playlistu jiz pro konkretni stream
+if [ -s ${playlist} ]; then
 
-if [ -z "${stream}" ]; then
-	echo "Nenasel se stream" >> /dev/stderr
-	exit 2
+	file_time=$(( $(stat -t ${playlist} | cut -d" " -f 13) ))
+	current_time=$(date +%s)
+
+	stari=$(( current_time - 60 * 60 * 24 * 1 ))
+
+	if [ ${file_time} -gt ${stari} ]; then
+		HLS=${playlist}
+	fi
 fi
 
-ffmpeg -nostats -loglevel 0 -re -fflags +genpts -i "${stream}" -f mpegts -vcodec copy -acodec copy pipe:1        # zajisteni vystupu raw TS datoveho streamu
+if [ -z "${HLS}" ]; then
+	wget -qO ${playlist}  "http://sledovanitv.cz/vlc/api-channel/${program}.m3u8?quality=${quality}&capabilities=h265,adaptive&PHPSESSID=${PHPSESSID}"
+	
+	HLS=${playlist}
+fi
 
+ffmpeg -nostats -loglevel 0 -protocol_whitelist "http,file,tcp" -i ${HLS} -c copy -map 0  -f mpegts pipe:1
+
+#
