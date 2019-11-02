@@ -27,7 +27,7 @@ for channel in epgdata['channels'] :
          l_start = datetime.datetime.strptime(event['startTime'], "%Y-%m-%d %H:%M")
          l_stop = datetime.datetime.strptime(event['endTime'], "%Y-%m-%d %H:%M")
          
-         programme.attrib = { 'start': l_start.strftime("%Y%m%d%H%M%S +0200"), 'stop': l_stop.strftime("%Y%m%d%H%M%S +0200"), 'channel': channel  }
+         programme.attrib = { 'start': l_start.strftime("%Y%m%d%H%M%S +0200"), 'stop': l_stop.strftime("%Y%m%d%H%M%S %z"), 'channel': channel  }
          
          title = ET.SubElement(programme, 'title')
          title.text = event['title']
