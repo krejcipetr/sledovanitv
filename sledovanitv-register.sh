@@ -17,6 +17,10 @@ id=$(echo "${regstring}" | jq -r ".deviceId")
 password=$(echo "${regstring}" | jq -r ".password")
 
 tmp=$(mktemp)
+if [ ! -s ${dir}/config.json ]; then
+    echo "{}" > ${dir}/config.json
+fi
+
 cat ${dir}/config.json | jq '.device += {"id":"'${id}'","password":"'${password}'"}' > ${tmp}
 cat ${tmp} > ${dir}/config.json
 rm ${tmp}
