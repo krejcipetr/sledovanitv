@@ -66,7 +66,7 @@ Tento postup je zcela můj, možná se rozchází s oficiálním postupem.
 - pokud se něco v kodi neprojeví, ale je to vidět v TVH-serveru, tak restart KODI poumůže, stačí KODI, nemusí se celý přehrávač
 - v WWW je dole lišta, která když se rozbalí, tak je vidět LOG TVH-serveru
 - v sh skriptem můžete udělat debug pomoci přídaní -x na první řádek, výstup opět do logu TVH-serveru
-
+- pokud jste prisli o oprava k sledovanitv, zkuste promazat /storage/.cache/playlist* /storage/.cache/sledovanitv
 
   
 
