@@ -61,7 +61,7 @@ Tento postup je zcela můj, možná se rozchází s oficiálním postupem.
   Použít stav vysílání z EPG : Zakázáno
 
 
-## Troubleshouting
+## Troubleshooting
 
 - pokud se něco v kodi neprojeví, ale je to vidět v TVH-serveru, tak restart KODI poumůže, stačí KODI, nemusí se celý přehrávač
 - v WWW je dole lišta, která když se rozbalí, tak je vidět LOG TVH-serveru
