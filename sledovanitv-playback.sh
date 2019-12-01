@@ -13,7 +13,8 @@ if [ -s ${playlist} ]; then
 	file_time=$(( $(stat -t ${playlist} | cut -d" " -f 13) ))
 	current_time=$(date +%s)
 
-	stari=$(( current_time - 60 * 60 * 24 * 1 ))
+#	stari=$(( current_time - 60 * 60 * 24 * 1 ))
+	stari=$(( current_time - 60 * 60 * 12 ))
 
 	if [ ${file_time} -gt ${stari} ]; then
 		HLS=${playlist}
@@ -22,6 +23,8 @@ fi
 
 if [ -z "${HLS}" ]; then
 	wget -qO ${playlist}  "http://sledovanitv.cz/vlc/api-channel/${program}.m3u8?quality=${quality}&capabilities=h265,adaptive&PHPSESSID=${PHPSESSID}"
+	
+	sed -i -e "s/^\//http:\/\/sledovanitv.cz\//" ${playlist} 
 	
 	HLS=${playlist}
 fi

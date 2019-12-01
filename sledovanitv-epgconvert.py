@@ -3,7 +3,7 @@
 import json
 import xml.etree.ElementTree as ET
 import datetime
-
+import os,time
 
 epgfile = open('/dev/stdin','r').read()
 
@@ -11,6 +11,8 @@ epgdata = json.loads(epgfile)
 
 tv=ET.Element('tv')
 tv.attrib = {'generator-info-name': 'json2xml'}
+
+local = "+0100"
 
 for channeltext in epgdata['channels'] :
     channel = ET.SubElement(tv, 'channel')
@@ -27,7 +29,7 @@ for channel in epgdata['channels'] :
          l_start = datetime.datetime.strptime(event['startTime'], "%Y-%m-%d %H:%M")
          l_stop = datetime.datetime.strptime(event['endTime'], "%Y-%m-%d %H:%M")
          
-         programme.attrib = { 'start': l_start.strftime("%Y%m%d%H%M%S +0200"), 'stop': l_stop.strftime("%Y%m%d%H%M%S %z"), 'channel': channel  }
+         programme.attrib = { 'start': l_start.strftime("%Y%m%d%H%M%S ")+local, 'stop': l_stop.strftime("%Y%m%d%H%M%S ")+local, 'channel': channel  }
          
          title = ET.SubElement(programme, 'title')
          title.text = event['title']
@@ -40,6 +42,7 @@ for channel in epgdata['channels'] :
          
          date = ET.SubElement(programme, 'date')
          date.text = l_start.strftime("%Y%m%d")
+
 
 ET.dump(tv)
 

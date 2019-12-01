@@ -1,4 +1,4 @@
-#!  /bin/bash
+#!  /bin/bash 
 
 dir=$(dirname $0)
 
@@ -20,3 +20,6 @@ tmp=$(mktemp)
 cat ${dir}/config.json | jq '.device += {"id":"'${id}'","password":"'${password}'"}' > ${tmp}
 cat ${tmp} > ${dir}/config.json
 rm ${tmp}
+
+
+
