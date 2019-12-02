@@ -4,7 +4,7 @@ cachefile=${HOME}/.cache/sledovanitv
 
 if [ -s ${cachefile} ]; then
 
-	file_time=$(( $(stat -t ${cachefile} | cut -d" " -f 13) ))
+	file_time=$(stat -t ${cachefile} -c %Y)
 	current_time=$(date +%s)
 
 	stari=$(( current_time - 60 * 60 * 24 * 1 ))
@@ -29,5 +29,6 @@ if [ -z "${PHPSESSID}" ]; then
 		echo "Nepodarilo se prihlasit"
 		exit 4
 	fi
+	[ -f ${cachefile} ] && rm ${cachefile}
 	echo -n "${PHPSESSID}" > ${cachefile}
 fi
