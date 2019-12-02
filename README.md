@@ -15,7 +15,7 @@ Podporovano je prehravani a EPG
 
 Pro Kodi v AmLogic 912/ Linux
 - v adresáři $HOME vytvořit adresář _sledovanitv_ (/storage/sledovanitv)
-- nahrát do něj soubory z githubu, musí mít právo na spuštění (chmod +x /storage/sledovanitv*.sh)
+- nahrát do něj soubory z githubu, musí mít právo na spuštění (chmod +x /storage/sledovanitv*.sh /storage/sledovanitv*.py)
 - v KODI instalovat balíčky: System Tools, FFmpeg tools, tvheadend server
 
 ### Registrace zařízení
