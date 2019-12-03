@@ -25,5 +25,6 @@ cat ${dir}/config.json | jq '.device += {"id":"'${id}'","password":"'${password}
 cat ${tmp} > ${dir}/config.json
 rm ${tmp}
 
+rm ${HOME}/.cache/sledovanitv*
 
 
