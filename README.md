@@ -5,7 +5,7 @@ Jako výchozí podklad jsem použil skript od JiRo (XMBC-Kodi.cz)
 Soubor skriptu pro implementaci SledovaniTV.cz do tvheadendu a kodi. Diky implementaci do tvheadendu funguje je nahravani a timeshift
 Podporovano je prehravani a EPG
 
-- sledovanitv-playback.sh - je pipe pro mux. Slouží k přehrávání kanálu
+- sledovanitv-autoconfig.sh - je pipe pro automatickou konfiguraci IPTV site
 - sledovanitv-epg.sh - na stdout jde EPG celeho sledovanitv na 1 den dopredu 1439s
 - sledovanitv-register.sh - slouží k počáteční registraci zařízení
 
@@ -38,26 +38,18 @@ Z důvodu, že sledování má kanály pojmenované různě, tak je vhodné nejd
 
 ### Zprovoznění kanálu
 
-Tento postup je zcela můj, možná se rozchází s oficiálním postupem.
+Postup je zcela odlisny od prodchozi koncepce, kdy se vkladaly jednotlive MUXy rucne. Ted jsou vlozeny playlistem z M3U8 souboru, ktery je generovany skriptem sledovenitv-autoconfig.sh
 
-- Konfigurace/DVB vstupy/Sítě přidat novou IPTV Network
+- Konfigurace/DVB vstupy/Sítě přidat novou Atuomatic IPTV Network
   název: SledováníTV
   Ignorovat čísla programů od poskytovatele: true
   priorita: 10
-  Skip startup scan: true
-- přidat nový MUX, každý kanál má vlastní MUX
-  sít: SledováníTV
-  EPG scan: zakázano
-  URL: pipe:///storage/sledovanitv/sledovanitv-playback.sh <id kanalu z EPG>
-  jméno muxu: vlastní jméno kanálu
-  Znovu spustit (roura): true
-  Timeout pro kill (roura/sek): 5
-- po uložení a počátečním skenování se vám ve službách ukáže nový řádek
+  Skip startup scan: false
+  URL: pipe:///storage/sledovanitv/sledovanitv-autoconfig.sh
 - přejit do Program EPG/Programy a přidat nový program
   Název: jméno kanálu
   Služba: zvolit službu s příslušným kanálem
-  Automatický název ze sítě: false
-  Zdroj EPG: vybrat příslušných EPG kanál
+  Automatický název ze sítě: true
   Použít stav vysílání z EPG : Zakázáno
 
 
