@@ -2,8 +2,6 @@
 
 tokenfile=${HOME}/.cache/sledovanitv_token
 configfile=$(dirname $0)/config.json
-autoconfigfile=${HOME}/.cache/sledovanitv_autoconfig
-
 
 if [ -s ${tokenfile} ]; then
 
