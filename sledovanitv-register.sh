@@ -6,7 +6,7 @@ read -p "SledovaniTV.cz email:" weblogin
 read -s -p "Heslo:" webpasswd
 echo
 
-mac=$( ( find /sys/class/net -mindepth 1 -maxdepth 1 ! -name lo -execdir cat {}/address \; )  | head -n 1 )
+mac=$( ( find /sys/class/net -mindepth 1 -maxdepth 1 ! -name lo -exec cat {}/address \; )  | head -n 1 )
 regaddress=https://sledovanitv.cz/api/create-pairing?username=${weblogin}\&password=${webpasswd}\&type=xbmc\&product=$(hostname)\&serial=${mac}
 regstring=$(wget -q -O - --no-check-certificate ${regaddress})
 echo "${regstring}" | grep -q -E "\"status\":1"
