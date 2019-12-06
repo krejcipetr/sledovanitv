@@ -42,6 +42,7 @@ Postup je zcela odlisny od prodchozi koncepce, kdy se vkladaly jednotlive MUXy r
 
 - Konfigurace/DVB vstupy/Sítě přidat novou Atuomatic IPTV Network
   název: SledováníTV
+  max pocet streamu: 4
   Ignorovat čísla programů od poskytovatele: true
   priorita: 10
   Skip startup scan: false
