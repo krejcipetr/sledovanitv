@@ -41,18 +41,13 @@ Z důvodu, že sledování má kanály pojmenované různě, tak je vhodné nejd
 Postup je zcela odlisny od prodchozi koncepce, kdy se vkladaly jednotlive MUXy rucne. Ted jsou vlozeny playlistem z M3U8 souboru, ktery je generovany skriptem sledovenitv-autoconfig.sh
 
 - Konfigurace/DVB vstupy/Sítě přidat novou Atuomatic IPTV Network
-  název: SledováníTV
-  max pocet streamu: 4
-  Ignorovat čísla programů od poskytovatele: true
-  priorita: 10
-  Skip startup scan: false
-  URL: pipe:///storage/sledovanitv/sledovanitv-autoconfig.sh
-- přejit do Program EPG/Programy a přidat nový program
-  Název: jméno kanálu
-  Služba: zvolit službu s příslušným kanálem
-  Automatický název ze sítě: true
-  Použít stav vysílání z EPG : Zakázáno
-
+  - název: SledováníTV
+  - max pocet streamu: 4
+  - Ignorovat čísla programů od poskytovatele: true
+  - priorita: 10
+  - Skip startup scan: false
+  - URL: pipe:///storage/sledovanitv/sledovanitv-autoconfig.sh
+- přejit do Sluzeb a namapovat sluzbu
 
 ## Troubleshooting
 
