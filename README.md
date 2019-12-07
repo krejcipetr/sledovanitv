@@ -46,6 +46,7 @@ Postup je zcela odlisny od prodchozi koncepce, kdy se vkladaly jednotlive MUXy r
   - Ignorovat čísla programů od poskytovatele: true
   - priorita: 10
   - Skip startup scan: false
+  - Service ID: 1
   - URL: pipe:///storage/sledovanitv/sledovanitv-autoconfig.sh
 - přejit do Sluzeb a namapovat sluzbu
 
