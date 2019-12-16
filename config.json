@@ -1,2 +1,6 @@
 {
+  "quality": "40",
+  "capabilities": "h265,adaptive",
+  "pin": "null",
+  "tempdir": "/storage/.cache"
 }

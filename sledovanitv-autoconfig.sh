@@ -2,6 +2,29 @@
 
 source $(dirname $0)/sledovanitv-token.sh
 
-# Vytvarim novy autoconfigfile
+FILETMP=${cachedir}/sledovanitv_playlist
+
+# Nacti playlist
+CAPABILITIES=$(jq -r '.capabilities // "h265,adaptive"' < ${configfile})
+QUALITY=$(jq -r '.quality // "40"' < ${configfile})
+playlist=$(wget -q -O- "https://sledovanitv.cz/api/playlist?PHPSESSID=${SLEDOVANITVID}&quality=${QUALITY}&capabilities=${CAPABILITIES}")
+
+# Nacti z nej nazvvy skupin
+eval $(echo $playlist |  jq -r '.groups  | to_entries[] | "SLEDOVANITVGRP\(.key)=\"\(.value)\"\n"')
+
+# Ma se zahrnout i programy chranene pinem?
+pin4parents=$(jq -r ".pin" < ${configfile})
+
+if [ ${pin4parents} != null ]; then
+  lockedpin="pin"
+fi
+
+# Vytvarim novy playlist
 echo "#EXTM3U"
-wget -q -O- "https://sledovanitv.cz/api/playlist?PHPSESSID=${SLEDOVANITVID}&quality=40&capabilities=h265%2Cadaptive"  | jq  -r '.channels[] | select (.locked=="none" and .type=="tv") | "#EXTINF:0 tvg-id=\"\(.id)\" epg-id=\"\(.id)\" tvg-name=\"\(.name)\" tvg-logo=\"\(.logoUrl)\",\(.name)\npipe://ffmpeg -nostats -loglevel 0 -protocol_whitelist \"https,tls,http,file,tcp\" -i \"\(.url)\" -c copy -map 0  -f mpegts pipe:1"'
+echo $playlist | jq -r  '.channels | to_entries[] | select ((.value.locked=="none" or .value.locked=="'${lockedpin}'") and .value.type=="tv") | "#EXTINF:-1 tvg-chno=\"\(.key+1)\" tvg-id=\"\(.value.id)\" epg-id=\"\(.value.id)\" tvg-name=\"\(.value.name)\" tvg-logo=\"\(.value.logoUrl)\"  group-title=\"${SLEDOVANITVGRP\(.value.group)}\",\(.value.name)\npipe://'$(dirname $(realpath $0) )'/sledovanitv-playback.sh \"\(.value.url | sub("PHPSESSID=[0-9a-z]+";"PHPSESSID=%PHPSESSID%") )\""' > ${FILETMP}
+sed -i -E 's/["#&()]/\\\\\0/g' ${FILETMP}
+
+# Vypis playlist a nahrad v nem nazvy skupin
+while read; do eval echo -e ${REPLY}; done < ${FILETMP}
+
+rm ${FILETMP}
