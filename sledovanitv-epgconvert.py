@@ -12,7 +12,7 @@ epgdata = json.loads(epgfile)
 tv=ET.Element('tv')
 tv.attrib = {'generator-info-name': 'json2xml'}
 
-local = "+0100"
+local = "+0200"
 
 for channeltext in epgdata['channels'] :
     channel = ET.SubElement(tv, 'channel')
