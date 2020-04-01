@@ -79,5 +79,13 @@ Postup je zcela odlisny od predchozi koncepce, kdy se vkladaly jednotlive MUXy r
 - poud chcete vyvolat okamzite znovu-nacteni playlistu, tak staci si dat neco jako parametr ke skriptu do URL a ten parametr pripadne menit
 
 
-  
+Nastaveni site
+![Sit](help1.png)
 
+Nastaveni Bucketu
+![Bucket1](help2.png)
+
+![Bucket3](help3.png)
+
+Jak to ma vypadat
+![Jak to ma vypadat](help4.png)
