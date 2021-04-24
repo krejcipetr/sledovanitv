@@ -11,7 +11,7 @@ if [ -s ${tokenfile} ]; then
 	current_time=$(date +%s)
 
 	# Stari max 1hod
-	stari=$(( current_time - 60 * 60 * 1 ))
+	stari=$(( current_time - 60 * 60 * 24 ))
 
 	if [ ${file_time} -gt ${stari} ]; then
 		SLEDOVANITVID=$(cat ${tokenfile})

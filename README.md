@@ -15,7 +15,7 @@ Podporovano je prehravani a EPG
 
 Pro Kodi v AmLogic 912/ Linux
 - v adresáři $HOME vytvořit adresář _sledovanitv_ (/storage/sledovanitv)
-- nahrát do něj soubory z githubu, musí mít právo na spuštění (chmod +x /storage/sledovanitv*.sh /storage/sledovanitv*.py)
+- nahrát do něj soubory z githubu, musí mít právo na spuštění (chmod +x /storage/sledovanitv/sledovanitv*.sh /storage/sledovanitv/sledovanitv*.py)
 - v KODI instalovat balíčky: System Tools, FFmpeg tools, tvheadend server
 
 ### Registrace zařízení
@@ -38,24 +38,54 @@ Z důvodu, že sledování má kanály pojmenované různě, tak je vhodné nejd
 
 ### Zprovoznění kanálu
 
-Postup je zcela odlisny od prodchozi koncepce, kdy se vkladaly jednotlive MUXy rucne. Ted jsou vlozeny playlistem z M3U8 souboru, ktery je generovany skriptem sledovenitv-autoconfig.sh
+Postup je zcela odlisny od predchozi koncepce, kdy se vkladaly jednotlive MUXy rucne. Ted jsou vlozeny playlistem z M3U8 souboru, ktery je generovany skriptem sledovenitv-autoconfig.sh
 
 - Konfigurace/DVB vstupy/Sítě přidat novou Atuomatic IPTV Network
   - název: SledováníTV
   - max pocet streamu: 4
-  - Ignorovat čísla programů od poskytovatele: true
-  - priorita: 10
-  - Skip startup scan: false
+  - vytvorit buket: true
+  - Pocatecni cislo programu: 1
+  - Ignorovat čísla programů od poskytovatele: false
+  - znakova sada: UTF-8
+  - skenovat po vytvoreni :false   
+  - preskocit ladeni po startu: true
+  - EIT casovy posun: lokalni cas (na serveru)
   - Service ID: 1
   - URL: pipe:///storage/sledovanitv/sledovanitv-autoconfig.sh
-- přejit do Sluzeb a namapovat sluzbu
+  
+  Po ulozeni se vytvori muxy a sluzby.
+
+  !!!! NESMI SE SPUSTIT SKENOVANI ODKUDKOLIV !!!!
+  Je to z toho duvodu, ze skenovani prepise nazvy sluzeb a pri dalsim nacteni playlistu se vsechny muxy a sluzby smazou a znovu vytvori, protoze nesedi nazvy sluzeb
+
+- Konfigurace Buketu
+  Vytvori nazev buketu podle nazvu site
+  - Povoleno: true
+  - Volby mapovani programu:
+    - sifrovane
+    - spoj stejny nazev
+  - Vytvorit stitky
+    - vsechno zvolit
+ 
+- Konfigurace stitku
+  Povolit si co chcete a pripadne nastavit interni a privatni
+
 
 ## Troubleshooting
 
 - pokud se něco v kodi neprojeví, ale je to vidět v TVH-serveru, tak restart KODI poumůže, stačí KODI, nemusí se celý přehrávač
 - v WWW je dole lišta, která když se rozbalí, tak je vidět LOG TVH-serveru
 - v sh skriptem můžete udělat debug pomoci přídaní -x na první řádek, výstup opět do logu TVH-serveru
-- pokud jste prisli o oprava k sledovanitv, zkuste promazat /storage/.cache/playlist* /storage/.cache/sledovanitv
+- poud chcete vyvolat okamzite znovu-nacteni playlistu, tak staci si dat neco jako parametr ke skriptu do URL a ten parametr pripadne menit
 
-  
 
+Nastaveni site
+![Sit](help1.png)
+
+Nastaveni Bucketu
+![Bucket1](help2.png)
+
+![Bucket3](help3.png)
+
+Jak to ma vypadat
+![Jak to ma vypadat](help4.png)

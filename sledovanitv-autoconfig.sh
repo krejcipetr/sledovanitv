@@ -19,12 +19,21 @@ if [ ${pin4parents} != null ]; then
   lockedpin="pin"
 fi
 
+# ulozeni definic
+for def in $(echo $playlist | jq -r  '.channels | to_entries[] | select ((.value.locked=="none" or .value.locked=="'${lockedpin}'") and .value.type=="tv") | "\(.value.id)#\(.value.url)"'); do
+	filename=${cachedir}/sledovanitv_$(echo ${def} | cut -d# -f1)
+
+	url=$(echo ${def} | cut -d'#' -f2)
+	echo ${url} > ${filename}
+done
+
 # Vytvarim novy playlist
 echo "#EXTM3U"
-echo $playlist | jq -r  '.channels | to_entries[] | select ((.value.locked=="none" or .value.locked=="'${lockedpin}'") and .value.type=="tv") | "#EXTINF:-1 tvg-chno=\"\(.key+1)\" tvg-id=\"\(.value.id)\" epg-id=\"\(.value.id)\" tvg-name=\"\(.value.name)\" tvg-logo=\"\(.value.logoUrl)\"  group-title=\"${SLEDOVANITVGRP\(.value.group)}\",\(.value.name)\npipe://'$(dirname $(realpath $0) )'/sledovanitv-playback.sh \"\(.value.url | sub("\\.\\?PHPSESSID=[0-9a-z]+";"?PHPSESSID=%PHPSESSID%") )\" \"\(.value.name)\""' > ${FILETMP}
+echo $playlist | jq -r  '.channels | to_entries[] | select ((.value.locked=="none" or .value.locked=="'${lockedpin}'") and .value.type=="tv") | "#EXTINF:-1 tvg-chno=\"\(.key+1)\" tvg-id=\"\(.value.id)\" epg-id=\"\(.value.id)\" tvg-name=\"\(.value.name)\" tvg-logo=\"\(.value.logoUrl)\"  group-title=\"${SLEDOVANITVGRP\(.value.group)}\",\(.value.name)\npipe://'$(dirname $(realpath $0) )'/sledovanitv-playback.sh \"'${cachedir}/sledovanitv_'\(.value.id)\" \"\(.value.name)\""' > ${FILETMP}
 sed -i -E 's/["#&()]/\\\\\0/g' ${FILETMP}
 
 # Vypis playlist a nahrad v nem nazvy skupin
 while read; do eval echo -e ${REPLY}; done < ${FILETMP}
 
 rm ${FILETMP}
+
