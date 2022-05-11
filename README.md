@@ -70,13 +70,21 @@ Postup je zcela odlisny od predchozi koncepce, kdy se vkladaly jednotlive MUXy r
 - Konfigurace stitku
   Povolit si co chcete a pripadne nastavit interni a privatni
 
+## Installace na samostatný tvheanded server bez kodi
+
+Pro tvheanded na samostatném serveru (raspberry pi zero 2W + Raspberry Pi OS)
+- doinstalovat tv_grab_file grabber dle postupu z https://github.com/b-jesch/tv_grab_file  
+- nutno naklonovat scripty do /home/hts a vytvořit složku /home/hts./cache
+- EPG grabber nutno spouštět cronem a načítata xml soubor /home/hts/sledovanitv/sledovanitv-epg-cron.xml, nikoliv script sledovanitv-epg.sh (cron spouštím 3min před spouštěním interních epg grabberů v tvheandedu)
+  - 1 */12 * * * /bin/bash /home/hts/sledovanitv/sledovanitv-epg.sh > /home/hts/sledovanitv/sledovanitv-epg-cron.xml
+- jinak je postup zprovoznění totožný
 
 ## Troubleshooting
 
 - pokud se něco v kodi neprojeví, ale je to vidět v TVH-serveru, tak restart KODI poumůže, stačí KODI, nemusí se celý přehrávač
 - v WWW je dole lišta, která když se rozbalí, tak je vidět LOG TVH-serveru
 - v sh skriptem můžete udělat debug pomoci přídaní -x na první řádek, výstup opět do logu TVH-serveru
-- poud chcete vyvolat okamzite znovu-nacteni playlistu, tak staci si dat neco jako parametr ke skriptu do URL a ten parametr pripadne menit
+- pokud chcete vyvolat okamzite znovu-nacteni playlistu, tak staci si dat neco jako parametr ke skriptu do URL a ten parametr pripadne menit
 
 
 Nastaveni site
