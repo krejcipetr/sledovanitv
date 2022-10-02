@@ -74,7 +74,7 @@ Postup je zcela odlisny od predchozi koncepce, kdy se vkladaly jednotlive MUXy r
 
 Pro tvheanded na samostatném serveru (raspberry pi zero 2W + Raspberry Pi OS)
 - doinstalovat tv_grab_file grabber dle postupu z https://github.com/b-jesch/tv_grab_file  
-- nutno naklonovat scripty do /home/hts a vytvořit složku /home/hts./cache
+- nutno naklonovat scripty do /home/hts a vytvořit složku /home/hts/.cache
 - EPG grabber nutno spouštět cronem a načítata xml soubor /home/hts/sledovanitv/sledovanitv-epg-cron.xml, nikoliv script sledovanitv-epg.sh (cron spouštím 3min před spouštěním interních epg grabberů v tvheandedu)
   - 1 */12 * * * /bin/bash /home/hts/sledovanitv/sledovanitv-epg.sh > /home/hts/sledovanitv/sledovanitv-epg-cron.xml
 - jinak je postup zprovoznění totožný
