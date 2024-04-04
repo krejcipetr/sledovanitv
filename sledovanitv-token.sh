@@ -1,4 +1,4 @@
-#!  /bin/bash -x
+#!  /bin/bash
 
 configfile=$(dirname $0)/config.json
 
