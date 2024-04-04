@@ -56,4 +56,4 @@ while read; do eval echo -e ${REPLY}; done <${FILETMP}_tmp >>${FILETMP}
 
 cat ${FILETMP}
 
-rm ${FILETMP}_tmp
+rm ${FILETMP}
