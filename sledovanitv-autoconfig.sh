@@ -2,6 +2,10 @@
 
 source $(dirname $0)/sledovanitv-token.sh
 
+if [ ! -d ${cachedir}/sledovanitv  ]; then
+	mkdir -p ${cachedir}/sledovanitv
+fi
+
 FILETMP=${cachedir}/sledovanitv/playlist
 
 if [ -s ${FILETMP} ]; then
@@ -18,10 +22,6 @@ if [ -s ${FILETMP} ]; then
 fi
 
 echo "#EXTM3U" > ${FILETMP}
-
-if [ ! -d ${cachedir}/sledovanitv  ]; then
-	mkdir -p ${cachedir}/sledovanitv
-fi
 
 # Nacti playlist
 CAPABILITIES=$(jq -r '.capabilities // "h265,adaptive"' < ${configfile})
