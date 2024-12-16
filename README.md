@@ -17,6 +17,7 @@ Pro Kodi v AmLogic 912/ Linux
 - v adresáři $HOME vytvořit adresář _sledovanitv_ (/storage/sledovanitv)
 - nahrát do něj soubory z githubu, musí mít právo na spuštění (chmod +x /storage/sledovanitv/sledovanitv*.sh /storage/sledovanitv/sledovanitv*.py)
 - v KODI instalovat balíčky: System Tools, FFmpeg tools, tvheadend server
+- nastaveni casove zony systemu, neplest s TZ v KODI!    echo "TIMEZONE=Europe/Prague" > /storage/.cache/timezone 
 
 ### Registrace zařízení
 
