@@ -40,8 +40,10 @@ for channel in epgdata['channels'] :
          desc.text = event['description']
          desc.attrib = {'lang': 'cs'} 
          
-         date = ET.SubElement(programme, 'date')
-         date.text = l_start.strftime("%Y%m%d")
+         if 'year' in event :
+            datum = datetime.datetime(int(event['year']), 1, 1)
+            date = ET.SubElement(programme, 'date')
+            date.text = datum.strftime("%Y%m%d")
 
 
 ET.dump(tv)
