@@ -8,7 +8,7 @@ import requests
 import sys
 
 tv=ET.Element('tv')
-tv.attrib = {'generator-info-name': 'json2xml'}
+tv.attrib = {'generator-info-name': 'SledovaniTV-EPG'}
 
 local = time.strftime("%z")
 
