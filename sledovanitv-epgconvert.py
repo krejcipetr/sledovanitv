@@ -12,6 +12,8 @@ tv.attrib = {'generator-info-name': 'SledovaniTV-EPG'}
 
 local = time.strftime("%z")
 
+processed_events = set()
+
 starttime = datetime.datetime.now()
 endtime = starttime + datetime.timedelta(days=4)
 
@@ -20,16 +22,15 @@ currenttime = starttime
 sledovaniid = os.environ.get('SLEDOVANITVID', '')
 
 while currenttime < endtime :
+    url= f'https://sledovanitv.cz/api/epg?PHPSESSID={sledovaniid}&detail=1&duration=1439&time={currenttime.strftime("%Y-%m-%d %H:%M:%S")}'
 
     #Nacteni dat z api
-    r = requests.get(
-        f'https://sledovanitv.cz/api/epg?PHPSESSID={sledovaniid}&detail=1&duration=1439&time={currenttime.strftime("%Y-%m-%d%20%H:%M:%S")}'
-    )
+    r = requests.get(url)
     epgdata = r.json()
     
     if epgdata['status'] == 0 :
         sys.stderr.write(f"Chyba: Neprobehlo nacteni EPG dat pro cas {currenttime.strftime('%Y-%m-%d %H:%M:%S')}\n")
-        sys.exit(1)
+        break
 
     #V pripade nazvy channelu pouze z prvniho bloku
     if currenttime == starttime:
@@ -43,29 +44,36 @@ while currenttime < endtime :
     # Davky z bloku
     for channel in epgdata['channels'] :
          for event in epgdata['channels'][channel]:
-             l_stop = datetime.datetime.strptime(event['endTime'], "%Y-%m-%d %H:%M")
+             # Skip duplicate events
+             if 'eventId' in event and event['eventId'] in processed_events:
+                 continue
 
-             programme = ET.SubElement(tv, 'programme')
+             if 'eventId' in event:
+                 processed_events.add(event['eventId'])
 
-             l_start = datetime.datetime.strptime(event['startTime'], "%Y-%m-%d %H:%M")
+                 l_stop = datetime.datetime.strptime(event['endTime'], "%Y-%m-%d %H:%M")
 
-             programme.attrib = { 'start': l_start.strftime("%Y%m%d%H%M%S ")+local, 'stop': l_stop.strftime("%Y%m%d%H%M%S ")+local, 'channel': channel  }
+                 programme = ET.SubElement(tv, 'programme')
 
-             title = ET.SubElement(programme, 'title')
-             title.text = event['title']
-             title.attrib = {'lang': 'cs'}
+                 l_start = datetime.datetime.strptime(event['startTime'], "%Y-%m-%d %H:%M")
+
+                 programme.attrib = { 'start': l_start.strftime("%Y%m%d%H%M%S ")+local, 'stop': l_stop.strftime("%Y%m%d%H%M%S ")+local, 'channel': channel  }
+
+                 title = ET.SubElement(programme, 'title')
+                 title.text = event['title']
+                 title.attrib = {'lang': 'cs'}
 
 
-             desc = ET.SubElement(programme, 'desc')
-             desc.text = event['description']
-             desc.attrib = {'lang': 'cs'}
+                 desc = ET.SubElement(programme, 'desc')
+                 desc.text = event['description']
+                 desc.attrib = {'lang': 'cs'}
 
-             if 'year' in event :
-                date = ET.SubElement(programme, 'date')
-                date.text = str(event['year']) + '0101'
-                date.attrib = {'lang': 'cs'}
+                 if 'year' in event :
+                    date = ET.SubElement(programme, 'date')
+                    date.text = str(event['year']) + '0101'
+                    date.attrib = {'lang': 'cs'}
 
-    currenttime = currenttime + 1440
+    currenttime = currenttime + datetime.timedelta(minutes=1440)
 
 ET.dump(tv)
 
