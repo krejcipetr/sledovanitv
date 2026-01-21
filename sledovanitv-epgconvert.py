@@ -45,6 +45,9 @@ while currenttime < endtime :
          for event in epgdata['channels'][channel]:
              l_stop = datetime.datetime.strptime(event['endTime'], "%Y-%m-%d %H:%M")
 
+             if l_stop > endtime:
+                 continue
+
              programme = ET.SubElement(tv, 'programme')
 
              l_start = datetime.datetime.strptime(event['startTime'], "%Y-%m-%d %H:%M")
