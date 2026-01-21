@@ -53,7 +53,9 @@ sed -i -E 's/["#&()]/\\\\\0/g' ${FILETMP}_tmp
 
 # Vypis playlist a nahrad v nem nazvy skupin
 while read; do eval echo -e ${REPLY}; done <${FILETMP}_tmp >>${FILETMP}
+rm ${FILETMP}_tmp
 
+# Vypis to na STDOUT
 cat ${FILETMP}
 
-rm ${FILETMP}
+

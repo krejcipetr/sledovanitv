@@ -1,0 +1,12 @@
+{
+	"bit_rate": 0,
+	"qscale": 0,
+	"tracks": 1,
+	"sample_fmt": -1,
+	"sample_rate": 0,
+	"channel_layout": 0,
+	"name": "webtv-aac",
+	"description": "WEBTV codec AAC",
+	"codec_name": "aac",
+	"profile": 0
+}

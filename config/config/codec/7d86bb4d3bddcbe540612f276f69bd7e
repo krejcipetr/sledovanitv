@@ -1,0 +1,11 @@
+{
+	"qscale": 0,
+	"tracks": 1,
+	"sample_fmt": -1,
+	"sample_rate": 0,
+	"channel_layout": 0,
+	"name": "webtv-vorbis",
+	"description": "WEBTV codec Vorbis",
+	"codec_name": "vorbis",
+	"profile": 0
+}

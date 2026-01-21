@@ -1,0 +1,29 @@
+{
+	"container": 6,
+	"sid": 0,
+	"rewrite_pmt": false,
+	"rewrite_nit": false,
+	"pro_vcodec": "webtv-vp8",
+	"src_vcodec": [
+	],
+	"pro_acodec": "webtv-vorbis",
+	"src_acodec": [
+	],
+	"src_scodec": [
+	],
+	"class": "profile-transcode",
+	"name": "webtv-vp8-vorbis-webm",
+	"enabled": false,
+	"default": false,
+	"comment": "WEBTV profile VP8/Vorbis/WEBM",
+	"timeout": 0,
+	"timeout_start": 0,
+	"priority": 3,
+	"fpriority": 0,
+	"restart": false,
+	"contaccess": true,
+	"catimeout": 2000,
+	"swservice": true,
+	"svfilter": 0,
+	"shield": true
+}

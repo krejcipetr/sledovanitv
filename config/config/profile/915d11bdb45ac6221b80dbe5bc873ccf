@@ -1,0 +1,29 @@
+{
+	"container": 9,
+	"sid": 0,
+	"rewrite_pmt": false,
+	"rewrite_nit": false,
+	"pro_vcodec": "webtv-h264",
+	"src_vcodec": [
+	],
+	"pro_acodec": "webtv-vorbis",
+	"src_acodec": [
+	],
+	"src_scodec": [
+	],
+	"class": "profile-transcode",
+	"name": "webtv-h264-vorbis-mp4",
+	"enabled": false,
+	"default": false,
+	"comment": "WEBTV profile H264/Vorbis/MP4",
+	"timeout": 0,
+	"timeout_start": 0,
+	"priority": 3,
+	"fpriority": 0,
+	"restart": false,
+	"contaccess": true,
+	"catimeout": 2000,
+	"swservice": true,
+	"svfilter": 0,
+	"shield": true
+}

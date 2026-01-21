@@ -19,14 +19,19 @@ id=$(echo "${regstring}" | jq -r ".deviceId")
 password=$(echo "${regstring}" | jq -r ".password")
 
 tmp=$(mktemp)
-if [ ! -s ${dir}/config.json ]; then
-    echo "{}" > ${dir}/config.json
+if [ ! -s ${HOME}/sledovanitv_config.json ]; then
+    echo "{}" > ${HOME}/sledovanitv_config.json
 fi
 
-cat ${dir}/config.json | jq '.device += {"id":"'${id}'","password":"'${password}'","serial":"'${mac}'"}' > ${tmp}
-cat ${tmp} > ${dir}/config.json
+cat ${HOME}/sledovanitv_config.json | jq '.device += {"id":"'${id}'","password":"'${password}'","serial":"'${mac}'"}' > ${tmp}
+cat ${tmp} > ${HOME}/sledovanitv_config.json
 rm ${tmp}
 
-rm ${HOME}/.cache/sledovanitv*
+cachedir=$(jq -r '.tempdir // "'${HOME}'/.cache"' < ${HOME}/sledovanitv_config.json)
+
+rm -rf ${cachedir}/sledovanitv/*
+rm -f ${cachedir}/sledovanitv_token
+
+
 
 

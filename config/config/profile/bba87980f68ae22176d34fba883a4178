@@ -1,0 +1,17 @@
+{
+	"class": "profile-htsp",
+	"name": "htsp",
+	"enabled": true,
+	"default": false,
+	"comment": "HTSP Default Stream Settings",
+	"timeout": 0,
+	"timeout_start": 0,
+	"priority": 3,
+	"fpriority": 0,
+	"restart": false,
+	"contaccess": true,
+	"catimeout": 2000,
+	"swservice": true,
+	"svfilter": 0,
+	"shield": true
+}

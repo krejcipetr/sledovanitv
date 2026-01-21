@@ -79,6 +79,20 @@ Pro tvheanded na samostatném serveru (raspberry pi zero 2W + Raspberry Pi OS)
 - EPG grabber nutno spouštět cronem a načítata xml soubor /home/hts/sledovanitv/sledovanitv-epg-cron.xml, nikoliv script sledovanitv-epg.sh (cron spouštím 3min před spouštěním interních epg grabberů v tvheandedu)
   - 1 */12 * * * /bin/bash /home/hts/sledovanitv/sledovanitv-epg.sh > /home/hts/sledovanitv/sledovanitv-epg-cron.xml
 - jinak je postup zprovoznění totožný
+- 
+## DOCKER
+
+Pro jednodussi start v Linuxu
+
+- Sestaveni docker imahe
+  docker build -t TVHSledovaniTV .
+- Spusteni docker image mam 2 adresare config a recordings pro ukladani persistentnich dat, pozor je poterba mit spravna prava, aby vnitrni procesy videly na adresa
+```bash
+  chown -R 1000:1000 config recordings  
+  docker run -d --name tvheadend -e PUID=1000 -e PGID=1000 -p 9981:9981 -p 9982:9982 -v ${PWD}/config:/config -v ${PWD}/recordings:/recordings TVHSledovaniTV
+```
+
+
 
 ## Troubleshooting
 

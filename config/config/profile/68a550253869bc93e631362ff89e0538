@@ -1,0 +1,23 @@
+{
+	"sid": 1,
+	"rewrite_pmt": true,
+	"rewrite_pat": true,
+	"rewrite_sdt": true,
+	"rewrite_nit": true,
+	"rewrite_eit": true,
+	"class": "profile-mpegts",
+	"name": "pass",
+	"enabled": true,
+	"default": false,
+	"comment": "MPEG-TS Pass-thru",
+	"timeout": 0,
+	"timeout_start": 0,
+	"priority": 3,
+	"fpriority": 0,
+	"restart": false,
+	"contaccess": true,
+	"catimeout": 2000,
+	"swservice": true,
+	"svfilter": 0,
+	"shield": true
+}

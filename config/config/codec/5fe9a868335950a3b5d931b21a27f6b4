@@ -1,0 +1,18 @@
+{
+	"bit_rate": 0,
+	"crf": 0,
+	"gop_size": 0,
+	"height": 384,
+	"scaling_mode": 0,
+	"hwaccel": false,
+	"hwaccel_details": 0,
+	"deinterlace": false,
+	"deinterlace_vaapi_mode": 0,
+	"deinterlace_field_rate": 0,
+	"deinterlace_enable_auto": 0,
+	"pix_fmt": 0,
+	"name": "webtv-h264",
+	"description": "WEBTV codec H264",
+	"codec_name": "libx264",
+	"profile": 0
+}

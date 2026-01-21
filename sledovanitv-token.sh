@@ -1,6 +1,6 @@
 #!  /bin/bash
 
-configfile=$(dirname $0)/config.json
+configfile=${HOME}/sledovanitv_config.json
 
 cachedir=$(jq -r '.tempdir // "'${HOME}'/.cache"' < ${configfile})
 tokenfile=${cachedir}/sledovanitv_token

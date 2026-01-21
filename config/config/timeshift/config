@@ -1,0 +1,13 @@
+{
+	"enabled": true,
+	"ondemand": false,
+	"path": "/recordigs/",
+	"max_period": 60,
+	"unlimited_period": false,
+	"max_size": 2048,
+	"ram_size": 2048,
+	"unlimited_size": false,
+	"ram_only": true,
+	"ram_fit": false,
+	"teletext": false
+}

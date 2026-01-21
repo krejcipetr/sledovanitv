@@ -1,0 +1,6 @@
+{
+  "quality": "40",
+  "capabilities": "adaptive,h265",
+  "pin": "null",
+  "tempdir": "/config"
+}

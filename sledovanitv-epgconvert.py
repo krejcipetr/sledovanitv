@@ -15,7 +15,7 @@ local = time.strftime("%z")
 processed_events = set()
 
 starttime = datetime.datetime.now()
-endtime = starttime + datetime.timedelta(days=4)
+endtime = starttime + datetime.timedelta(days=5)
 
 currenttime = starttime
 
@@ -77,3 +77,4 @@ while currenttime < endtime :
 
 ET.dump(tv)
 
+sys.exit(0)
