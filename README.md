@@ -92,7 +92,7 @@ Pro jednodussi start v Linuxu
 ### Spusteni
   Docker mam 2 adresare config a recordings pro ukladani persistentnich dat, pozor je poterba mit spravna prava, aby vnitrni procesy videly na adresa
 ```bash
-  docker create volumen tvsledovaniconfig
+  docker create volume tvsledovaniconfig
   mkdir recordings 
   chown 911:911 recordings  
   docker run --replace -d --name tvsledovani -e TZ=Europe/Prague -p 9981:9981 -p 9982:9982 -v tvsledovaiconfig:/config -v ${PWD}/recordings:/recordings tvheadendsledovanitv
