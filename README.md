@@ -90,7 +90,8 @@ Pro jednodussi start v Linuxu
   docker build -t tvheadendsledovanitv .
 ```
 ### Spusteni
-  Docker mam 2 adresare config a recordings pro ukladani persistentnich dat, pozor je poterba mit spravna prava, aby vnitrni procesy videly na adresa
+  Z duvodu prednastavene konfigurace a zajisteni presistence musi byt /config reseny pomoci volume a ne bindem na adresar, pro /recordings je samozdrejme vhodnejsi pouzit bind.
+  Nevyhoda volume je slozitejsi zpusob zalohovani volumu, nez obycejsi zkopirovani adresare
 ```bash
   docker create volume tvsledovaniconfig
   mkdir recordings 
