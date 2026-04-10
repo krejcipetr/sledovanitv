@@ -1,4 +1,4 @@
-FROM linuxserver/tvheadend:version-5abbcda4
+FROM linuxserver/tvheadend:version-eb023c57
 LABEL authors="krejci"
 
 RUN [ -d /usr/local/sledovanitv ] || mkdir /usr/local/sledovanitv
