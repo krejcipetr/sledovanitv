@@ -92,9 +92,9 @@ Pro jednodussi start v Linuxu
 ### Spusteni
   Z duvodu prednastavene konfigurace a zajisteni presistence musi byt /config reseny pomoci volume a ne bindem na adresar, pro /recordings je samozdrejme vhodnejsi pouzit bind.
   Nevyhoda volume je slozitejsi zpusob zalohovani volumu, nez obycejsi zkopirovani adresare
-- Sestaveni docker imahe
+- Sestaveni docker image
 ```bash
-  docker build -t tvheadendsledovani .
+  docker build -t tvheadendsledovanitv .
 ```
 - Spusteni docker image mam 2 adresare config a recordings pro ukladani persistentnich dat, pozor je poterba mit spravna prava, aby vnitrni procesy videly na adresa
 ```bash
