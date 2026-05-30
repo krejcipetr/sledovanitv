@@ -28,7 +28,7 @@ if [ -z "${SLEDOVANITVID}" ]; then
 	fi
 
 	#SLEDOVANITVID=$(wget -qO - "http://sledovanitv.cz/api/device-login?deviceId=${conf_deviceid}&password=${conf_devauthid}&version=3.2.004&lang=cs&unit=default" | jq -r ".PHPSESSID" )
-	SLEDOVANITVID=$(wget -qO - "http://sledovanitv.cz/api/device-login?deviceId=${conf_deviceid}&password=${conf_devauthid}&unit=default" | jq -r ".PHPSESSID" )
+	SLEDOVANITVID=$(wget -qO - "https://sledovanitv.cz/api/device-login?deviceId=${conf_deviceid}&password=${conf_devauthid}&unit=default" | jq -r ".PHPSESSID" )
 
 	if [ -z "${SLEDOVANITVID}" -o "${SLEDOVANITVID}" == "null" ]; then
 		echo "Nepodarilo se prihlasit" ${SLEDOVANITVID} >> /dev/stderr
