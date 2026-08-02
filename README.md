@@ -87,21 +87,23 @@ Pro jednodussi start v Linuxu
 ### Sestaveni docker image
   Postavim se do adresare a spustim, pripadne nastavit tag takovy, aby to slo na github
 ```bash
-  docker build -t tvheadendsledovanitv .
+  docker build -t tvheadendsledovani .
+  docker tag tvheadendsledovani krejcipetr/tvheadendsledovani
+  docker push krejcipetr/tvheadendsledovani
 ```
 ### Spusteni
   Z duvodu prednastavene konfigurace a zajisteni presistence musi byt /config reseny pomoci volume a ne bindem na adresar, pro /recordings je samozdrejme vhodnejsi pouzit bind.
   Nevyhoda volume je slozitejsi zpusob zalohovani volumu, nez obycejsi zkopirovani adresare
 - Sestaveni docker image
 ```bash
-  docker build -t tvheadendsledovanitv .
+  docker build -t tvheadendsledovani .
 ```
 - Spusteni docker image mam 2 adresare config a recordings pro ukladani persistentnich dat, pozor je poterba mit spravna prava, aby vnitrni procesy videly na adresa
 ```bash
   docker create volume tvsledovaniconfig
   mkdir recordings 
   chown 911:911 recordings  
-  docker run --replace -d --name tvsledovani -e TZ=Europe/Prague -p 9981:9981 -p 9982:9982 -v tvsledovaiconfig:/config -v ${PWD}/recordings:/recordings tvheadendsledovanitv
+  docker run --replace -d --name tvsledovani -e TZ=Europe/Prague -p 9981:9981 -p 9982:9982 -v tvsledovaiconfig:/config -v ${PWD}/recordings:/recordings tvheadendsledovani
 ```
 ### Registrace
   Registrace se musi pustit po naslednem spusteni
