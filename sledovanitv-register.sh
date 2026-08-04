@@ -22,7 +22,7 @@ fi
 jq '.device += {"id":"'"${id}"'","password":"'"${password}"'","serial":"'"${mac}"'"}' "${HOME}"/sledovanitv_config.json | sponge "${HOME}"/sledovanitv_config.json
 
 # Smazani cache
-cachedir=$(jq -r '.tempdir//'"${HOME}"'/.cache' < "${HOME}/sledovanitv_config.json")
+cachedir=$(jq -r '.tempdir // '"${HOME}"'/.cache' < "${HOME}/sledovanitv_config.json")
 rm -rf "${cachedir}/sledovanitv/"*
 rm -f "${cachedir}"/sledovanitv_token
 
