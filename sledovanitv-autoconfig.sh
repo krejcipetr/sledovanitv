@@ -24,9 +24,9 @@ fi
 echo "#EXTM3U" > ${FILETMP}
 
 # Nacti playlist
-CAPABILITIES=$(jq -r '.capabilities // "h265,adaptive"' < ${configfile})
+CAPABILITIES=$(jq -r '.capabilities // "h264,adaptive"' < ${configfile})
 QUALITY=$(jq -r '.quality // "40"' < ${configfile})
-playlist=$(wget -q -O- "https://sledovanitv.cz/api/playlist?PHPSESSID=${SLEDOVANITVID}&format=m3u8&quality=${QUALITY}&capabilities=${CAPABILITIES}")
+playlist=$(curl -s -A "VLC/3.0.18 LibVLC/3.0.18" "https://sledovanitv.cz/api/playlist?PHPSESSID=${SLEDOVANITVID}&format=m3u8&quality=${QUALITY}&capabilities=${CAPABILITIES}")
 
 # Nacti z nej nazvvy skupin
 eval $(echo $playlist |  jq -r '.groups  | to_entries[] | "SLEDOVANITVGRP\(.key)=\"\(.value)\"\n"')
@@ -42,8 +42,9 @@ fi
 for def in $(echo $playlist | jq -r  '.channels | to_entries[] | select ((.value.locked=="none" or .value.locked=="'${lockedpin}'") and .value.type=="tv") | "\(.value.id)#\(.value.url)"'); do
   programname=$(echo ${def} | cut -d# -f1)
 	filename=${cachedir}/sledovanitv/${programname}
-  url=$(echo ${def} | cut -d'#' -f2)
 
+  url=$(echo ${def} | cut -d'#' -f2)
+  url=$(streamlink --stream-url "${url}" best -l none)
 	echo "${url}" > ${filename}
 done
 
@@ -58,5 +59,3 @@ rm ${FILETMP}_tmp
 
 # Vypis to na STDOUT
 cat ${FILETMP}
-
-

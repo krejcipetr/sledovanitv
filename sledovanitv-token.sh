@@ -26,8 +26,7 @@ if [ -z "${SLEDOVANITVID}" ]; then
 		return
 	fi
 
-	#SLEDOVANITVID=$(wget -qO - "http://sledovanitv.cz/api/device-login?deviceId=${conf_deviceid}&password=${conf_devauthid}&version=3.2.004&lang=cs&unit=default" | jq -r ".PHPSESSID" )
-	SLEDOVANITVID=$(wget -qO - "https://sledovanitv.cz/api/device-login?deviceId=${conf_deviceid}&password=${conf_devauthid}&unit=default" | jq -r ".PHPSESSID" )
+	SLEDOVANITVID=$(curl -s -A "VLC/3.0.18 LibVLC/3.0.18" "https://sledovanitv.cz/api/device-login?deviceId=${conf_deviceid}&password=${conf_devauthid}&unit=default" | jq -r ".PHPSESSID" )
 
 	if [ -z "${SLEDOVANITVID}" ] || [ "${SLEDOVANITVID}" == "null" ]; then
 		echo "Nepodarilo se prihlasit" "${SLEDOVANITVID}" >> /dev/stderr
@@ -41,6 +40,6 @@ if [ -z "${SLEDOVANITVID}" ]; then
   # Pripadne odemceni
   pin4parents=$(jq -r ".pin" < "${configfile}")
 	if [ "${pin4parents}" != null ]; then
-		wget -qO /dev/null "https://sledovanitv.cz/api/pin-unlock?pin=${pin4parents}&whitelogo=1&PHPSESSID=${SLEDOVANITVID}"
+		curl -s -A "VLC/3.0.18 LibVLC/3.0.18" "https://sledovanitv.cz/api/pin-unlock?pin=${pin4parents}&whitelogo=1&PHPSESSID=${SLEDOVANITVID}" >> /dev/null
 	fi
 fi
