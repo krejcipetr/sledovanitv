@@ -26,7 +26,7 @@ echo "#EXTM3U" > ${FILETMP}
 # Nacti playlist
 CAPABILITIES=$(jq -r '.capabilities // "h265,adaptive"' < ${configfile})
 QUALITY=$(jq -r '.quality // "40"' < ${configfile})
-playlist=$(wget -q -O- "https://sledovanitv.cz/api/playlist?PHPSESSID=${SLEDOVANITVID}&quality=${QUALITY}&capabilities=${CAPABILITIES}")
+playlist=$(wget -q -O- "https://sledovanitv.cz/api/playlist?PHPSESSID=${SLEDOVANITVID}&format=m3u8&quality=${QUALITY}&capabilities=${CAPABILITIES}")
 
 # Nacti z nej nazvvy skupin
 eval $(echo $playlist |  jq -r '.groups  | to_entries[] | "SLEDOVANITVGRP\(.key)=\"\(.value)\"\n"')
@@ -41,13 +41,12 @@ fi
 # ulozeni definic
 for def in $(echo $playlist | jq -r  '.channels | to_entries[] | select ((.value.locked=="none" or .value.locked=="'${lockedpin}'") and .value.type=="tv") | "\(.value.id)#\(.value.url)"'); do
 	filename=${cachedir}/sledovanitv/$(echo ${def} | cut -d# -f1)
-
 	url=$(echo ${def} | cut -d'#' -f2)
 	echo ${url} > ${filename}
 done
 
 # Vytvarim novy playlis
-echo $playlist | jq -r  '.channels | to_entries[] | select ((.value.locked=="none" or .value.locked=="'${lockedpin}'") and .value.type=="tv") | "#EXTINF:-1 tvg-chno=\"\(.key+1)\" tvg-id=\"\(.value.id)\" epg-id=\"\(.value.id)\" tvg-name=\"\(.value.name)\" tvg-logo=\"\(.value.logoUrl)\"  group-title=\"${SLEDOVANITVGRP\(.value.group)}\",\(.value.name)\npipe://'$(dirname $(realpath $0) )'/sledovanitv-playback.sh \"'${cachedir}/sledovanitv/'\(.value.id)\" \"\(.value.name)\""' > ${FILETMP}_tmp
+echo $playlist | jq -r  '.channels | to_entries[] | select ((.value.locked=="none" or .value.locked=="'${lockedpin}'") and .value.type=="tv") | "#EXTINF:-1 tvg-chno=\"\(.key+1)\" tvg-id=\"\(.value.id)\" epg-id=\"\(.value.id)\" tvg-name=\"\(.value.name)\" tvg-logo=\"\(.value.logoUrl)\"  group-title=\"${SLEDOVANITVGRP\(.value.group)}\",\(.value.name)\nhttp://localhost:9393/\(.value.id)\"' > ${FILETMP}_tmp
 
 sed -i -E 's/["#&()]/\\\\\0/g' ${FILETMP}_tmp
 
