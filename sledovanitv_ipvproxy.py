@@ -1,5 +1,6 @@
 import sys
 import os
+import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import threading
 
@@ -13,6 +14,8 @@ Gst.init(None)
 
 
 class IPTVProxyHandler(BaseHTTPRequestHandler):
+    config_directory = None
+
     def do_GET(self):
         # Dynamické určení kanálu podle cesty v URL (např. /ct1 -> ct1)
         kanal = self.path.strip("/")
@@ -22,7 +25,7 @@ class IPTVProxyHandler(BaseHTTPRequestHandler):
             self.send_error(400, "Neplatny nazev kanalu")
             return
 
-        cesta_k_souboru = f"{kanal}"
+        cesta_k_souboru = os.path.join(self.config_directory, kanal)
 
         # Načtení aktuální URL ze specifického souboru kanálu
         try:
@@ -179,15 +182,29 @@ class IPTVProxyHandler(BaseHTTPRequestHandler):
 
 
 def run_server(port):
-    server = HTTPServer(('0.0.0.0', port), IPTVProxyHandler)
+    server = HTTPServer(('127.0.0.1', port), IPTVProxyHandler)
     print(f"IPTV Proxy bezi na portu {port} a nasloucha na dynamickych URL...", flush=True)
     server.serve_forever()
 
 
 if __name__ == '__main__':
+    config_path = os.path.expanduser("~/sledovanitv_config.json")
+    try:
+        with open(config_path, "r", encoding="utf-8") as f:
+            config = json.load(f)
+        cachedir = config.get("cachedir", "~/sledovanitv")
+        port = config.get("ipvproxy", {}).get("port", 9393)
+        if not isinstance(cachedir, str) or not cachedir.strip():
+            raise ValueError("hodnota 'cachedir' musi byt neprazdny retezec")
+    except (OSError, json.JSONDecodeError, KeyError, ValueError) as e:
+        print(f"Chyba pri nacitani konfigurace '{config_path}': {e}", file=sys.stderr)
+        sys.exit(1)
+
+    IPTVProxyHandler.config_directory = os.path.expanduser(cachedir)
+
     loop = GLib.MainLoop()
     t = threading.Thread(target=loop.run)
     t.daemon = True
     t.start()
 
-    run_server(9393)
+    run_server(port)
