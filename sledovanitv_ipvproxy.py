@@ -190,4 +190,4 @@ if __name__ == '__main__':
     t.daemon = True
     t.start()
 
-    run_server()
+    run_server(9393)
