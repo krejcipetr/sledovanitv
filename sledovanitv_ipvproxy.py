@@ -178,9 +178,9 @@ class IPTVProxyHandler(BaseHTTPRequestHandler):
             pipeline.remove(sink)
 
 
-def run_server():
-    server = HTTPServer(('0.0.0.0', 8080), IPTVProxyHandler)
-    print("IPTV Proxy bezi na portu 8080 a nasloucha na dynamickych URL...", flush=True)
+def run_server(port):
+    server = HTTPServer(('0.0.0.0', port), IPTVProxyHandler)
+    print(f"IPTV Proxy bezi na portu {port} a nasloucha na dynamickych URL...", flush=True)
     server.serve_forever()
 
 
