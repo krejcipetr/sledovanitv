@@ -1,17 +1,16 @@
 import sys
 import os
 import json
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import threading
 
-# Inicializace GStreameru proběhne POUZE JEDNOU při startu kontejneru
 import gi
 
-gi.require_version('Gst', '1.0')
-from gi.repository import Gst, GLib
+gi.require_version("GLib", "2.0")
+# noinspection PyUnresolvedReferences
+from gi.repository import GLib
 
-Gst.init(None)
-
+import streamlink
 
 class IPTVProxyHandler(BaseHTTPRequestHandler):
     config_directory = None
@@ -38,151 +37,49 @@ class IPTVProxyHandler(BaseHTTPRequestHandler):
             self.send_error(500, f"Chyba pri cteni souboru kanalu: {e}")
             return
 
-        # Hlavičky pro standardní MPEG-TS stream
+        print(f"[{kanal}] Startuji stream: {uri}", flush=True)
+
+        # Streamlink najde dostupné varianty a vybere nejvyšší kvalitu.
+        try:
+            streams = streamlink.streams(uri)
+            stream = streams.get('best')
+            if stream is None:
+                self.send_error(404, f"Pro kanal '{kanal}' nebyl nalezen zadny stream")
+                return
+
+            stream_fd = stream.open()
+        except Exception as e:
+            print(f"[{kanal}] Streamlink chyba: {e}", flush=True)
+            self.send_error(502, f"Stream se nepodarilo otevrit: {e}")
+            return
+
+        # Hlavičky pro streamovaná data. Délka není známá, proto se posílá
+        # průběžně bez Content-Length.
         self.send_response(200)
         self.send_header('Content-Type', 'video/mp2t')
         self.send_header('Connection', 'close')
         self.end_headers()
 
-        print(f"[{kanal}] Startuji stream: {uri}", flush=True)
-
-        # Inicializace seznamu prvků a vyžádaných padů pro pozdější bezpečné uvolnění
-        allocated_elements = []
-        allocated_request_pads = []
-
-        # Vytvoření lokální pipeline
-        pipeline = Gst.Pipeline.new(f"pipeline-{kanal}")
-        src = Gst.ElementFactory.make("urisourcebin", None)
-        mux = Gst.ElementFactory.make("mpegtsmux", None)
-        sink = Gst.ElementFactory.make("fdsink", None)
-
-        src.set_property("uri", uri)
-        src.set_property("buffer-duration", 1000000000)  # 1s buffer pro bleskový start
-        src.set_property("buffer-size", 1024 * 1024)
-        mux.set_property("alignment", -1)
-
-        sink.set_property("fd", self.wfile.fileno())
-        sink.set_property("sync", False)
-        sink.set_property("async", False)
-
-        pipeline.add(src)
-        pipeline.add(mux)
-        pipeline.add(sink)
-        mux.link(sink)
-
-        def on_pad_added(element, pad):
-            caps = pad.get_current_caps()
-            if not caps: return
-            name = caps.to_string()
-
-            # VIDEO větev
-            if "video/x-h265" in name or "video/x-h264" in name:
-                q = Gst.ElementFactory.make("queue", None)
-                q.set_property("max-size-buffers", 1)
-                q.set_property("max-size-time", 0)
-                q.set_property("max-size-bytes", 0)
-                parser = Gst.ElementFactory.make("h265parse" if "x-h265" in name else "h264parse", None)
-
-                pipeline.add(q)
-                pipeline.add(parser)
-                allocated_elements.extend([q, parser])
-
-                q.link(parser)
-                mux_pad = mux.get_request_pad("sink_%u")
-                allocated_request_pads.append(mux_pad)
-
-                parser.get_static_pad("src").link(mux_pad)
-                pad.link(q.get_static_pad("sink"))
-                q.sync_state_with_parent()
-                parser.sync_state_with_parent()
-
-            # AUDIO větev (všechny jazyky dynamicky)
-            elif "audio/x-aac" in name:
-                q = Gst.ElementFactory.make("queue", None)
-                q.set_property("max-size-buffers", 1)
-                q.set_property("max-size-time", 0)
-                q.set_property("max-size-bytes", 0)
-                parser = Gst.ElementFactory.make("aacparse", None)
-
-                pipeline.add(q)
-                pipeline.add(parser)
-                allocated_elements.extend([q, parser])
-
-                q.link(parser)
-                mux_pad = mux.get_request_pad("sink_%u")
-                allocated_request_pads.append(mux_pad)
-
-                parser.get_static_pad("src").link(mux_pad)
-                pad.link(q.get_static_pad("sink"))
-                q.sync_state_with_parent()
-                parser.sync_state_with_parent()
-
-            # TITULKY (VTT -> DVBSub)
-            elif "text/x-raw" in name or "subtitle" in name or "vtt" in name:
-                q = Gst.ElementFactory.make("queue", None)
-                q.set_property("max-size-buffers", 2)
-                subparse = Gst.ElementFactory.make("subparse", None)
-                render = Gst.ElementFactory.make("textrender", None)
-                capsfilter = Gst.ElementFactory.make("capsfilter", None)
-                encoder = Gst.ElementFactory.make("dvbsubenc", None)
-
-                capsfilter.set_property("caps", Gst.Caps.from_string("video/x-raw,width=1920,height=1080"))
-
-                pipeline.add(q)
-                pipeline.add(subparse)
-                pipeline.add(render)
-                pipeline.add(capsfilter)
-                pipeline.add(encoder)
-                allocated_elements.extend([q, subparse, render, capsfilter, encoder])
-
-                q.link(subparse)
-                subparse.link(render)
-                render.link(capsfilter)
-                capsfilter.link(encoder)
-
-                mux_pad = mux.get_request_pad("sink_%u")
-                allocated_request_pads.append(mux_pad)
-
-                encoder.get_static_pad("src").link(mux_pad)
-                pad.link(q.get_static_pad("sink"))
-
-                q.sync_state_with_parent()
-                subparse.sync_state_with_parent()
-                render.sync_state_with_parent()
-                capsfilter.sync_state_with_parent()
-                encoder.sync_state_with_parent()
-
-        src.connect("pad-added", on_pad_added)
-        pipeline.set_state(Gst.State.PLAYING)
-
-        bus = pipeline.get_bus()
         try:
             while True:
-                msg = bus.pop_filtered(Gst.MessageType.ERROR | Gst.MessageType.EOS, 100000000)  # 100ms tick
-                if msg:
+                data = stream_fd.read(64 * 1024)
+                if not data:
                     break
-        except Exception:
-            pass
+                self.wfile.write(data)
+                self.wfile.flush()
+        except (BrokenPipeError, ConnectionResetError):
+            # Klient přehrávání ukončil; není to chyba serveru.
+            print(f"[{kanal}] Klient ukoncil spojeni", flush=True)
+        except Exception as e:
+            print(f"[{kanal}] Chyba pri prenosu: {e}", flush=True)
         finally:
-            print(f"[{kanal}] Klient odpojen. Cistim pipeline a uvolnuju RAM...", flush=True)
-            pipeline.set_state(Gst.State.NULL)
-
-            # Korektní uvolnění dynamických padů z mpegtsmux (prevence Memory Leaků)
-            for pad in allocated_request_pads:
-                mux.release_request_pad(pad)
-
-            # Odstranění dynamicky přidaných prvků
-            for element in allocated_elements:
-                pipeline.remove(element)
-
-            # Odstranění fixních prvků
-            pipeline.remove(src)
-            pipeline.remove(mux)
-            pipeline.remove(sink)
-
+            stream_fd.close()
+            print(f"[{kanal}] Stream ukoncen", flush=True)
 
 def run_server(port):
-    server = HTTPServer(('127.0.0.1', port), IPTVProxyHandler)
+    # Každý požadavek zpracuje vlastní vlákno, takže jeden dlouho běžící
+    # stream nezablokuje ostatní kanály/klienty.
+    server = ThreadingHTTPServer(('127.0.0.1', port), IPTVProxyHandler)
     print(f"IPTV Proxy bezi na portu {port} a nasloucha na dynamickych URL...", flush=True)
     server.serve_forever()
 
@@ -192,7 +89,7 @@ if __name__ == '__main__':
     try:
         with open(config_path, "r", encoding="utf-8") as f:
             config = json.load(f)
-        cachedir = config.get("cachedir", "~/sledovanitv")
+        cachedir = config.get("cachedir", "~/.cache/sledovanitv")
         port = config.get("ipvproxy", {}).get("port", 9393)
         if not isinstance(cachedir, str) or not cachedir.strip():
             raise ValueError("hodnota 'cachedir' musi byt neprazdny retezec")

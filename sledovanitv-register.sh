@@ -7,9 +7,9 @@ echo
 mac=$( ( find /sys/class/net -mindepth 1 -maxdepth 1 ! -name lo -exec cat {}/address \; )  | head -n 1 )
 regaddress='https://sledovanitv.cz/api/create-pairing?username='"${weblogin}"'&password='"${webpasswd}"'&type=xbmc&product='$(hostname)'&serial=${mac}'
 regstring=$(curl -s -A "VLC/3.0.18 LibVLC/3.0.18" "${regaddress}")
-if grep -q -E '"status":1' <<< "${regstring}"; then
+if grep -q -E '"status":0' <<< "${regstring}"; then
     echo "${regstring}" > /dev/stderr
-    exit 3
+    #exit 3
 fi
 
 id=$(echo "${regstring}" | jq -r ".deviceId")
@@ -22,10 +22,9 @@ fi
 jq '.device += {"id":"'"${id}"'","password":"'"${password}"'","serial":"'"${mac}"'"}' "${HOME}"/sledovanitv_config.json | sponge "${HOME}"/sledovanitv_config.json
 
 # Smazani cache
-cachedir=$(jq -r '.tempdir // '"${HOME}"'/.cache' < "${HOME}/sledovanitv_config.json")
+cachedir=$(jq -r --arg fallback "${HOME}/.cache/sledovanitv" '.tempdir // $fallback' < "${HOME}/sledovanitv_config.json")
 rm -rf "${cachedir}/sledovanitv/"*
 rm -f "${cachedir}"/sledovanitv_token
-
 
 
 

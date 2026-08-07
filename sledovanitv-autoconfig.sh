@@ -1,9 +1,9 @@
 #!  /bin/bash 
 
-source $(dirname $0)/sledovanitv-token.sh
+source "$(dirname "${0}")/sledovanitv-token.sh"
 
-if [ ! -d ${cachedir}/sledovanitv  ]; then
-	mkdir -p ${cachedir}/sledovanitv
+if [ ! -d "${cachedir}"/sledovanitv  ]; then
+	mkdir -p "${cachedir}"/sledovanitv
 fi
 
 FILETMP=${cachedir}/sledovanitv/playlist
@@ -22,25 +22,25 @@ if [ -s ${FILETMP} ]; then
 fi
 
 # Nacti playlist
-CAPABILITIES=$(jq -r '.capabilities // "h264,adaptive"' < ${configfile})
+CAPABILITIES=$(jq -r '.capabilities // "h264,h265,adaptive2"' < "${configfile}")
 QUALITY=$(jq -r '.quality // "40"' < ${configfile})
-playlist=$(curl -s -A "VLC/3.0.18 LibVLC/3.0.18" "https://sledovanitv.cz/api/playlist?PHPSESSID=${SLEDOVANITVID}&format=vlc&quality=${QUALITY}&capabilities=${CAPABILITIES}")
+playlist=$(curl -s -A "VLC/3.0.18 LibVLC/3.0.18" "https://sledovanitv.cz/api/playlist?PHPSESSID=${SLEDOVANITVID}&format=m3u8&quality=${QUALITY}&capabilities=${CAPABILITIES}")
 
 
 # Nacti z nej nazvvy skupin
 eval "$(echo "${playlist}" |  jq -r '.groups  | to_entries[] | "SLEDOVANITVGRP\(.key)=\"\(.value)\"\n"')"
 
 # Ma se zahrnout i programy chranene pinem?
-pin4parents=$(jq -r ".pin" < ${configfile})
+pin4parents=$(jq -r ".pin" < "${configfile}")
 
-if [ ${pin4parents} != null ]; then
+if [ "${pin4parents}" != null ]; then
   lockedpin="pin"
 fi
 
 # ulozeni definic
 for def in $(echo "${playlist}" | jq -r  '.channels | to_entries[] | select ((.value.locked=="none" or .value.locked=="'"${lockedpin}"'") and .value.type=="tv") | "\(.value.id)#\(.value.url)"'); do
-  programname=$(echo ${def} | cut -d# -f1)
-	filename=${cachedir}/sledovanitv/${programname}
+  programname=$(echo "${def}" | cut -d# -f1)
+	filename="${cachedir}/sledovanitv/${programname}"
   url=$(echo ${def} | cut -d'#' -f2)
   echo "${url}" > ${filename}
 done
