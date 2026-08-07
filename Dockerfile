@@ -1,4 +1,4 @@
-FROM linuxserver/tvheadend:version-fcd987f0
+FROM linuxserver/tvheadend:latest
 LABEL authors="krejci"
 
 # 1. Odskriptuje/povolí řádek s community repozitářem v konfiguraci apk
@@ -23,4 +23,3 @@ RUN chown -R abc:abc /config /recordings
 RUN chmod +x /usr/bin/tv_grab_sledovanitv
 
 VOLUME ["/config","/recordings"]
-

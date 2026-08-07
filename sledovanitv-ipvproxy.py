@@ -2,6 +2,7 @@ import sys
 import os
 import json
 import time
+import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import streamlink
@@ -10,6 +11,12 @@ from streamlink import Streamlink
 
 class IPTVProxyHandler(BaseHTTPRequestHandler):
     config_directory = None
+
+    def __init__(self, *args, **kwargs):
+        self.transferred_bytes = 0
+        self.last_log_time = None
+        self.log_timer = None
+        super().__init__(*args, **kwargs)
 
     def log_message(self, format, *args):
         # Suppress HTTP request logging
@@ -30,8 +37,8 @@ class IPTVProxyHandler(BaseHTTPRequestHandler):
         # Načtení aktuální URL ze specifického souboru kanálu
         try:
             with open(cesta_k_souboru, 'r') as f:
-                uri = f.read().strip()
-            uri = "hls://".join(uri)
+                uri =  f.read().strip()
+
         except FileNotFoundError:
             self.send_error(404, f"Kanal '{kanal}' nebyl nalezen (soubor '{cesta_k_souboru}' neexistuje)")
             return
@@ -46,9 +53,7 @@ class IPTVProxyHandler(BaseHTTPRequestHandler):
             session = Streamlink()
             session.set_option("hls-live-restart", True)
             session.set_option("mux-subtitles", True)
-            session.set_option("hls-live-edge", 1)
             session.set_option("stream-segment-threads", 2)
-            session.set_option("hls-segment-stream-data", True)
             streams = session.streams(uri)
             stream = streams.get('best')
             if stream is None:
@@ -57,7 +62,7 @@ class IPTVProxyHandler(BaseHTTPRequestHandler):
 
             stream_fd = stream.open()
         except Exception as e:
-            print(f"[{kanal}] Streamlink chyba: {e}", flush=True)
+            print(f"[{kanal}] Streamlink error: {e}", flush=True)
             self.send_error(502, f"Stream se nepodarilo otevrit: {e}")
             return
 
@@ -68,31 +73,50 @@ class IPTVProxyHandler(BaseHTTPRequestHandler):
         self.send_header('Connection', 'close')
         self.end_headers()
 
+        def log_transfer_stats():
+            if self.last_log_time is not None:
+                transferred_mb = self.transferred_bytes / (1024 * 1024)
+                print(f"[{kanal}] Transferred: {transferred_mb:.2f} MB", flush=True)
+            self.last_log_time = time.time()
+            self.log_timer = threading.Timer(60.0, log_transfer_stats)
+            self.log_timer.daemon = True
+            self.log_timer.start()
+
         try:
             first_data_sent = False
+            buffersize = 512 * 1024
             while True:
-                data = stream_fd.read(64 * 1024)
+                data = stream_fd.read(buffersize)
                 if not data:
                     break
                 self.wfile.write(data)
                 self.wfile.flush()
+                self.transferred_bytes += len(data)
                 if not first_data_sent:
                     first_data_time = time.time()
                     elapsed_time = first_data_time - request_start_time
                     print(f"[{kanal}] First data in {elapsed_time:.3f}s", flush=True)
                     first_data_sent = True
+                    self.transferred_bytes = 0
+                    self.last_log_time = time.time()
+                    log_transfer_stats()
         except (BrokenPipeError, ConnectionResetError):
             # Klient přehrávání ukončil; není to chyba serveru.
             print(f"[{kanal}] Connection closed", flush=True)
         except Exception as e:
             print(f"[{kanal}] Chyba pri prenosu: {e}", flush=True)
         finally:
+            if self.log_timer is not None:
+                self.log_timer.cancel()
+            if self.transferred_bytes > 0:
+                transferred_mb = self.transferred_bytes / (1024 * 1024)
+                print(f"[{kanal}] Total transferred: {transferred_mb:.2f} MB", flush=True)
             stream_fd.close()
             print(f"[{kanal}] Streamlink close", flush=True)
 
 def run_server(port):
     server = ThreadingHTTPServer(('127.0.0.1', port), IPTVProxyHandler)
-    print(f"IPTV Proxy on 127.0.0.1:{port} s {IPTVProxyHandler.config_directory}", flush=True)
+    print(f"IPTV Proxy on 127.0.0.1:{port} streams in {IPTVProxyHandler.config_directory}", flush=True)
     server.serve_forever()
 
 

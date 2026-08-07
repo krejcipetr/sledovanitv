@@ -25,6 +25,3 @@ jq '.device += {"id":"'"${id}"'","password":"'"${password}"'","serial":"'"${mac}
 cachedir=$(jq -r --arg fallback "${HOME}/.cache/sledovanitv" '.tempdir // $fallback' < "${HOME}/sledovanitv-config.json")
 rm -rf "${cachedir}/sledovanitv/"*
 rm -f "${cachedir}"/sledovanitv_token
-
-
-

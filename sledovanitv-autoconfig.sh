@@ -8,24 +8,21 @@ fi
 
 FILETMP=${cachedir}/sledovanitv/playlist
 
-if [ -s ${FILETMP} ]; then
-        file_time=$(( $(stat -t ${FILETMP} | cut -d" " -f 13) ))
-        current_time=$(date +%s)
+# Nacti playlist
+CAPABILITIES=$(jq -r '.capabilities // "h265"' < "${configfile}")
+QUALITY=$(jq -r '.quality // "40"' < "${configfile}")
 
-        # Stari max 8h
-        stari=$(( current_time - 60 * 60 * 8 ))
-
-        if [ ${file_time} -gt ${stari} ]; then
-                cat  ${FILETMP}
-		exit
-        fi
+if  grep -q -E 'h265|adaptive' <<< "${CAPABILITIES}"; then
+  playback='http://127.0.0.1:9393/\(.value.id)'
+  format=m3u8
+else
+  playback='pipe:///usr/local/sledovanitv/sledovanitv-playback.sh '${cachedir}'/sledovanitv/\(.value.id) \"\(.value.name)\"'
+  format=vlc
 fi
 
-# Nacti playlist
-CAPABILITIES=$(jq -r '.capabilities // "h264,h265,adaptive2"' < "${configfile}")
-QUALITY=$(jq -r '.quality // "40"' < ${configfile})
-playlist=$(curl -s -A "VLC/3.0.18 LibVLC/3.0.18" "https://sledovanitv.cz/api/playlist?PHPSESSID=${SLEDOVANITVID}&format=m3u8&quality=${QUALITY}&capabilities=${CAPABILITIES}")
 
+playlist=$(curl -s -A "VLC/3.0.18 LibVLC/3.0.18" "https://sledovanitv.cz/api/playlist?PHPSESSID=${SLEDOVANITVID}&format=${format}&quality=${QUALITY}&capabilities=${CAPABILITIES}")
+echo "${playlist}" >  "${FILETMP}original"
 
 # Nacti z nej nazvvy skupin
 eval "$(echo "${playlist}" |  jq -r '.groups  | to_entries[] | "SLEDOVANITVGRP\(.key)=\"\(.value)\"\n"')"
@@ -41,19 +38,21 @@ fi
 for def in $(echo "${playlist}" | jq -r  '.channels | to_entries[] | select ((.value.locked=="none" or .value.locked=="'"${lockedpin}"'") and .value.type=="tv") | "\(.value.id)#\(.value.url)"'); do
   programname=$(echo "${def}" | cut -d# -f1)
   filename="${cachedir}/sledovanitv/${programname}"
-  url=$(echo ${def} | cut -d'#' -f2)
-  echo "${url}" > ${filename}
+  url=$(echo "${def}" | cut -d'#' -f2)
+  echo "${url}" > "${filename}"
 done
 
 # Vytvarim novy playlis
-echo $playlist | jq -r  '.channels | to_entries[] | select ((.value.locked=="none" or .value.locked=="'${lockedpin}'") and .value.type=="tv") | "#EXTINF:-1 tvg-chno=\"\(.key+1)\" tvg-id=\"\(.value.id)\" epg-id=\"\(.value.id)\" tvg-name=\"\(.value.name)\" tvg-logo=\"\(.value.logoUrl)\"  group-title=\"${SLEDOVANITVGRP\(.value.group)}\",\(.value.name)\nhttp://127.0.0.1:9393/\(.value.id)"' > ${FILETMP}_tmp
 
-sed -i -E 's/["#&()]/\\\\\0/g' ${FILETMP}_tmp
+
+echo "${playlist}" | jq -r  '.channels | to_entries[] | select ((.value.locked=="none" or .value.locked=="'${lockedpin}'") and .value.type=="tv") | "#EXTINF:-1 tvg-chno=\"\(.key+1)\" tvg-id=\"\(.value.id)\" epg-id=\"\(.value.id)\" tvg-name=\"\(.value.name)\" tvg-logo=\"\(.value.logoUrl)\"  group-title=\"${SLEDOVANITVGRP\(.value.group)}\",\(.value.name)\n'"${playback}"'"' > "${FILETMP}_tmp"
+
+sed -i -E 's/["#&()]/\\\\\0/g' "${FILETMP}_tmp"
 
 # Vypis playlist a nahrad v nem nazvy skupin
 echo "#EXTM3U" > ${FILETMP}
-while read; do eval echo -e ${REPLY}; done <${FILETMP}_tmp >>${FILETMP}
-rm ${FILETMP}_tmp
+while read; do eval echo -e "${REPLY}"; done < "${FILETMP}_tmp" >>"${FILETMP}"
+rm "${FILETMP}_tmp"
 
 # Vypis to na STDOUT
-cat ${FILETMP}
+cat "${FILETMP}"
