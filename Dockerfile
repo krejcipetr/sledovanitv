@@ -17,7 +17,7 @@ COPY config/tv_grab_sledovanitv /usr/bin/tv_grab_sledovanitv
 
 RUN /usr/bin/test -d /config/sledovanitv ] || mkdir /config/sledovanitv
 RUN mkdir -p /etc/services.d/sledovanitv-proxy
-RUN echo -e '#!/usr/bin/with-contenv sh\nexec s6-setuidgid abc python3 /usr/local/sledovanitv/sledovanitv_ipvproxy.py' > /etc/services.d/sledovanitv-proxy/run
+RUN echo -e '#!/usr/bin/with-contenv sh\nexec s6-setuidgid abc python3 /usr/local/sledovanitv/sledovanitv-ipvproxy.py' > /etc/services.d/sledovanitv-proxy/run
 RUN chmod +x /etc/services.d/sledovanitv-proxy/run
 RUN chown -R abc:abc /config /recordings
 RUN chmod +x /usr/bin/tv_grab_sledovanitv
