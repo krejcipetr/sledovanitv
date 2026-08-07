@@ -41,7 +41,6 @@ fi
 for def in $(echo "${playlist}" | jq -r  '.channels | to_entries[] | select ((.value.locked=="none" or .value.locked=="'"${lockedpin}"'") and .value.type=="tv") | "\(.value.id)#\(.value.url)"'); do
   programname=$(echo ${def} | cut -d# -f1)
 	filename=${cachedir}/sledovanitv/${programname}
-
   url=$(echo ${def} | cut -d'#' -f2)
   echo "${url}" > ${filename}
 done
