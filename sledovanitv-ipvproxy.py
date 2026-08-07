@@ -31,6 +31,7 @@ class IPTVProxyHandler(BaseHTTPRequestHandler):
         try:
             with open(cesta_k_souboru, 'r') as f:
                 uri = f.read().strip()
+            uri = "hls://".join(uri)
         except FileNotFoundError:
             self.send_error(404, f"Kanal '{kanal}' nebyl nalezen (soubor '{cesta_k_souboru}' neexistuje)")
             return
