@@ -7,7 +7,7 @@ echo
 mac=$( ( find /sys/class/net -mindepth 1 -maxdepth 1 ! -name lo -exec cat {}/address \; )  | head -n 1 )
 regaddress='https://sledovanitv.cz/api/create-pairing?username='"${weblogin}"'&password='"${webpasswd}"'&type=xbmc&product='$(hostname)'&serial=${mac}'
 regstring=$(curl -s -A "VLC/3.0.18 LibVLC/3.0.18" "${regaddress}")
-if grep -q -E '"status":0' <<< "${regstring}"; then
+if grep -q -E 'bad' <<< "${regstring}"; then
     echo "${regstring}" > /dev/stderr
     #exit 3
 fi

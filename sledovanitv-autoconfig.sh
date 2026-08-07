@@ -40,13 +40,13 @@ fi
 # ulozeni definic
 for def in $(echo "${playlist}" | jq -r  '.channels | to_entries[] | select ((.value.locked=="none" or .value.locked=="'"${lockedpin}"'") and .value.type=="tv") | "\(.value.id)#\(.value.url)"'); do
   programname=$(echo "${def}" | cut -d# -f1)
-	filename="${cachedir}/sledovanitv/${programname}"
+  filename="${cachedir}/sledovanitv/${programname}"
   url=$(echo ${def} | cut -d'#' -f2)
   echo "${url}" > ${filename}
 done
 
 # Vytvarim novy playlis
-echo $playlist | jq -r  '.channels | to_entries[] | select ((.value.locked=="none" or .value.locked=="'${lockedpin}'") and .value.type=="tv") | "#EXTINF:-1 tvg-chno=\"\(.key+1)\" tvg-id=\"\(.value.id)\" epg-id=\"\(.value.id)\" tvg-name=\"\(.value.name)\" tvg-logo=\"\(.value.logoUrl)\"  group-title=\"${SLEDOVANITVGRP\(.value.group)}\",\(.value.name)\npipe://'$(dirname $(realpath $0) )'/sledovanitv-playback.sh \"'${cachedir}/sledovanitv/'\(.value.id)\" \"\(.value.name)\""' > ${FILETMP}_tmp
+echo $playlist | jq -r  '.channels | to_entries[] | select ((.value.locked=="none" or .value.locked=="'${lockedpin}'") and .value.type=="tv") | "#EXTINF:-1 tvg-chno=\"\(.key+1)\" tvg-id=\"\(.value.id)\" epg-id=\"\(.value.id)\" tvg-name=\"\(.value.name)\" tvg-logo=\"\(.value.logoUrl)\"  group-title=\"${SLEDOVANITVGRP\(.value.group)}\",\(.value.name)\nhttp://127.0.0.1:9393/\(.value.id)"' > ${FILETMP}_tmp
 
 sed -i -E 's/["#&()]/\\\\\0/g' ${FILETMP}_tmp
 

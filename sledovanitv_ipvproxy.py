@@ -2,18 +2,15 @@ import sys
 import os
 import json
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-import threading
-
-import gi
-
-gi.require_version("GLib", "2.0")
-# noinspection PyUnresolvedReferences
-from gi.repository import GLib
 
 import streamlink
 
 class IPTVProxyHandler(BaseHTTPRequestHandler):
     config_directory = None
+
+    def log_message(self, format, *args):
+        # Suppress HTTP request logging
+        pass
 
     def do_GET(self):
         # Dynamické určení kanálu podle cesty v URL (např. /ct1 -> ct1)
@@ -31,7 +28,7 @@ class IPTVProxyHandler(BaseHTTPRequestHandler):
             with open(cesta_k_souboru, 'r') as f:
                 uri = f.read().strip()
         except FileNotFoundError:
-            self.send_error(404, f"Kanal '{kanal}' nebyl nalezen (soubor neexistuje)")
+            self.send_error(404, f"Kanal '{kanal}' nebyl nalezen (soubor '{cesta_k_souboru}' neexistuje)")
             return
         except Exception as e:
             self.send_error(500, f"Chyba pri cteni souboru kanalu: {e}")
@@ -77,10 +74,8 @@ class IPTVProxyHandler(BaseHTTPRequestHandler):
             print(f"[{kanal}] Stream ukoncen", flush=True)
 
 def run_server(port):
-    # Každý požadavek zpracuje vlastní vlákno, takže jeden dlouho běžící
-    # stream nezablokuje ostatní kanály/klienty.
     server = ThreadingHTTPServer(('127.0.0.1', port), IPTVProxyHandler)
-    print(f"IPTV Proxy bezi na portu {port} a nasloucha na dynamickych URL...", flush=True)
+    print(f"IPTV Proxy bezi na 127.0.0.1:{port} s {IPTVProxyHandler.config_directory}", flush=True)
     server.serve_forever()
 
 
@@ -89,7 +84,8 @@ if __name__ == '__main__':
     try:
         with open(config_path, "r", encoding="utf-8") as f:
             config = json.load(f)
-        cachedir = config.get("cachedir", "~/.cache/sledovanitv")
+        cachedir = config.get("tempdir", "~/.cache")
+        cachedir = os.path.join(cachedir, "sledovanitv")
         port = config.get("ipvproxy", {}).get("port", 9393)
         if not isinstance(cachedir, str) or not cachedir.strip():
             raise ValueError("hodnota 'cachedir' musi byt neprazdny retezec")
@@ -98,10 +94,5 @@ if __name__ == '__main__':
         sys.exit(1)
 
     IPTVProxyHandler.config_directory = os.path.expanduser(cachedir)
-
-    loop = GLib.MainLoop()
-    t = threading.Thread(target=loop.run)
-    t.daemon = True
-    t.start()
 
     run_server(port)
