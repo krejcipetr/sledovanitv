@@ -96,7 +96,7 @@ def run_server(port):
 
 
 if __name__ == '__main__':
-    config_path = os.path.expanduser("~/sledovanitv_config.json")
+    config_path = os.path.expanduser("~/sledovanitv-config.json")
     try:
         with open(config_path, "r", encoding="utf-8") as f:
             config = json.load(f)

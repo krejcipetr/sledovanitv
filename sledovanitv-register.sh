@@ -16,13 +16,13 @@ id=$(echo "${regstring}" | jq -r ".deviceId")
 password=$(echo "${regstring}" | jq -r ".password")
 
 # Vytvoreni json config souboru
-if [ ! -s "${HOME}/sledovanitv_config.json" ]; then
-    echo "{}" > "${HOME}/sledovanitv_config.json"
+if [ ! -s "${HOME}/sledovanitv-config.json" ]; then
+    echo "{}" > "${HOME}/sledovanitv-config.json"
 fi
-jq '.device += {"id":"'"${id}"'","password":"'"${password}"'","serial":"'"${mac}"'"}' "${HOME}"/sledovanitv_config.json | sponge "${HOME}"/sledovanitv_config.json
+jq '.device += {"id":"'"${id}"'","password":"'"${password}"'","serial":"'"${mac}"'"}' "${HOME}"/sledovanitv-config.json | sponge "${HOME}"/sledovanitv-config.json
 
 # Smazani cache
-cachedir=$(jq -r --arg fallback "${HOME}/.cache/sledovanitv" '.tempdir // $fallback' < "${HOME}/sledovanitv_config.json")
+cachedir=$(jq -r --arg fallback "${HOME}/.cache/sledovanitv" '.tempdir // $fallback' < "${HOME}/sledovanitv-config.json")
 rm -rf "${cachedir}/sledovanitv/"*
 rm -f "${cachedir}"/sledovanitv_token
 

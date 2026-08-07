@@ -24,7 +24,7 @@ fi
 # Nacti playlist
 CAPABILITIES=$(jq -r '.capabilities // "h264,h265,adaptive2"' < "${configfile}")
 QUALITY=$(jq -r '.quality // "40"' < ${configfile})
-playlist=$(curl -s -A "VLC/3.0.18 LibVLC/3.0.18" "https://sledovanitv.cz/api/playlist?PHPSESSID=${SLEDOVANITVID}&format=m3u8&quality=${QUALITY}&capabilities=${CAPABILITIES}")
+playlist=$(curl -s -A "VLC/3.0.18 LibVLC/3.0.18" "https://sledovanitv.cz/api/playlist?PHPSESSID=${SLEDOVANITVID}&format=dash&quality=${QUALITY}&capabilities=${CAPABILITIES}")
 
 
 # Nacti z nej nazvvy skupin
