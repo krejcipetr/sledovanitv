@@ -1,9 +1,12 @@
 import sys
 import os
 import json
+import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import streamlink
+from streamlink import Streamlink
+
 
 class IPTVProxyHandler(BaseHTTPRequestHandler):
     config_directory = None
@@ -14,6 +17,7 @@ class IPTVProxyHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         # Dynamické určení kanálu podle cesty v URL (např. /ct1 -> ct1)
+        request_start_time = time.time()
         kanal = self.path.strip("/")
 
         # Ochrana před prázdnou nebo nebezpečnou cestou
@@ -34,11 +38,17 @@ class IPTVProxyHandler(BaseHTTPRequestHandler):
             self.send_error(500, f"Chyba pri cteni souboru kanalu: {e}")
             return
 
-        print(f"[{kanal}] Startuji stream: {uri}", flush=True)
+        print(f"[{kanal}] Stream: {uri}", flush=True)
 
         # Streamlink najde dostupné varianty a vybere nejvyšší kvalitu.
         try:
-            streams = streamlink.streams(uri)
+            session = Streamlink()
+            session.set_option("hls-live-restart", True)
+            session.set_option("mux-subtitles", True)
+            session.set_option("hls-live-edge", 1)
+            session.set_option("stream-segment-threads", 2)
+            session.set_option("hls-segment-stream-data", True)
+            streams = session.streams(uri)
             stream = streams.get('best')
             if stream is None:
                 self.send_error(404, f"Pro kanal '{kanal}' nebyl nalezen zadny stream")
@@ -58,24 +68,30 @@ class IPTVProxyHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
         try:
+            first_data_sent = False
             while True:
                 data = stream_fd.read(64 * 1024)
                 if not data:
                     break
                 self.wfile.write(data)
                 self.wfile.flush()
+                if not first_data_sent:
+                    first_data_time = time.time()
+                    elapsed_time = first_data_time - request_start_time
+                    print(f"[{kanal}] First data in {elapsed_time:.3f}s", flush=True)
+                    first_data_sent = True
         except (BrokenPipeError, ConnectionResetError):
             # Klient přehrávání ukončil; není to chyba serveru.
-            print(f"[{kanal}] Klient ukoncil spojeni", flush=True)
+            print(f"[{kanal}] Connection closed", flush=True)
         except Exception as e:
             print(f"[{kanal}] Chyba pri prenosu: {e}", flush=True)
         finally:
             stream_fd.close()
-            print(f"[{kanal}] Stream ukoncen", flush=True)
+            print(f"[{kanal}] Streamlink close", flush=True)
 
 def run_server(port):
     server = ThreadingHTTPServer(('127.0.0.1', port), IPTVProxyHandler)
-    print(f"IPTV Proxy bezi na 127.0.0.1:{port} s {IPTVProxyHandler.config_directory}", flush=True)
+    print(f"IPTV Proxy on 127.0.0.1:{port} s {IPTVProxyHandler.config_directory}", flush=True)
     server.serve_forever()
 
 
