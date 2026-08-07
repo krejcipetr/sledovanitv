@@ -3,7 +3,7 @@
 	"sid": 0,
 	"rewrite_pmt": false,
 	"rewrite_nit": false,
-	"pro_vcodec": "H265",
+	"pro_vcodec": "webtv-h264",
 	"src_vcodec": [
 	],
 	"pro_acodec": "webtv-aac",
@@ -14,7 +14,7 @@
 	"class": "profile-transcode",
 	"name": "webtv-h264-aac-matroska",
 	"enabled": true,
-	"default": false,
+	"default": true,
 	"comment": "WEBTV profile H264/AAC/Matroska",
 	"timeout": 0,
 	"timeout_start": 0,

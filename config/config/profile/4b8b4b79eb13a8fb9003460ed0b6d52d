@@ -4,7 +4,7 @@
 	"class": "profile-matroska",
 	"name": "matroska",
 	"enabled": true,
-	"default": true,
+	"default": false,
 	"comment": "Matroska",
 	"timeout": 0,
 	"timeout_start": 0,
