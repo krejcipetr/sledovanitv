@@ -5,9 +5,7 @@ import time
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-import streamlink
 from streamlink import Streamlink
-
 
 class IPTVProxyHandler(BaseHTTPRequestHandler):
     config_directory = None
@@ -51,9 +49,11 @@ class IPTVProxyHandler(BaseHTTPRequestHandler):
         # Streamlink najde dostupné varianty a vybere nejvyšší kvalitu.
         try:
             session = Streamlink()
-            session.set_option("hls-live-restart", True)
             session.set_option("mux-subtitles", True)
-            session.set_option("stream-segment-threads", 2)
+            session.set_option("hls-live-edge", 2)
+            session.set_option("hls-segment-ignore-redirect", True)
+            session.set_option("stream-segment-threads", 3)
+
             streams = session.streams(uri)
             stream = streams.get('best')
             if stream is None:
@@ -76,7 +76,8 @@ class IPTVProxyHandler(BaseHTTPRequestHandler):
         def log_transfer_stats():
             if self.last_log_time is not None:
                 transferred_mb = self.transferred_bytes / (1024 * 1024)
-                print(f"[{kanal}] Transferred: {transferred_mb:.2f} MB", flush=True)
+                stream_duration = time.time() - request_start_time
+                print(f"[{kanal}] Transferred: {transferred_mb:.2f} MB, Duration: {stream_duration:.1f}s", flush=True)
             self.last_log_time = time.time()
             self.log_timer = threading.Timer(60.0, log_transfer_stats)
             self.log_timer.daemon = True
@@ -84,7 +85,7 @@ class IPTVProxyHandler(BaseHTTPRequestHandler):
 
         try:
             first_data_sent = False
-            buffersize = 512 * 1024
+            buffersize = 256 * 1024
             while True:
                 data = stream_fd.read(buffersize)
                 if not data:
@@ -110,7 +111,9 @@ class IPTVProxyHandler(BaseHTTPRequestHandler):
                 self.log_timer.cancel()
             if self.transferred_bytes > 0:
                 transferred_mb = self.transferred_bytes / (1024 * 1024)
-                print(f"[{kanal}] Total transferred: {transferred_mb:.2f} MB", flush=True)
+                stream_duration = time.time() - request_start_time
+                print(f"[{kanal}] Total transferred: {transferred_mb:.2f} MB, Duration: {stream_duration:.1f}s",
+                      flush=True)
             stream_fd.close()
             print(f"[{kanal}] Streamlink close", flush=True)
 
@@ -121,12 +124,15 @@ def run_server(port):
 
 
 if __name__ == '__main__':
-    config_path = os.path.expanduser("~/sledovanitv-config.json")
+    if len(sys.argv) > 1:
+        config_path = os.path.expanduser(sys.argv[1])
+    else:
+        config_path = os.path.expanduser("~/sledovanitv-config.json")
     try:
         with open(config_path, "r", encoding="utf-8") as f:
             config = json.load(f)
         cachedir = config.get("tempdir", "~/.cache")
-        cachedir = os.path.join(cachedir, "sledovanitv")
+        cachedir = os.path.expanduser(os.path.join(cachedir, "sledovanitv"))
         port = config.get("ipvproxy", {}).get("port", 9393)
         if not isinstance(cachedir, str) or not cachedir.strip():
             raise ValueError("hodnota 'cachedir' musi byt neprazdny retezec")

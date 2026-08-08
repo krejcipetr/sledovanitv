@@ -4,10 +4,11 @@ LABEL authors="krejci"
 # 1. Odskriptuje/povolí řádek s community repozitářem v konfiguraci apk
 RUN sed -i 's/^#\(.*community\)/\1/' /etc/apk/repositories \
     && apk update \
-    && apk upgrade \
-    && apk add --no-cache moreutils python3 py3-pip libva libva-utils intel-media-driver ffmpeg curl  \
-    && pip install --break-system-packages streamlink \
-    && apk cache clean
+    && apk add --no-cache moreutils curl
+RUN apk add --no-cache python3 py3-pip
+RUN apk add --no-cache libva libva-utils intel-media-driver
+RUN apk add --no-cache ffmpeg
+RUN pip install --break-system-packages streamlink
 RUN /usr/bin/test -d /usr/local/sledovanitv ] || mkdir /usr/local/sledovanitv
 RUN /usr/bin/test -d /recordings ] || mkdir /recordings
 COPY sledovanitv* /usr/local/sledovanitv/

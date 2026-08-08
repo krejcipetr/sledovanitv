@@ -9,7 +9,11 @@ fi
 FILETMP=${cachedir}/sledovanitv/playlist
 
 # Nacti playlist
-CAPABILITIES=$(jq -r '.capabilities // "h265"' < "${configfile}")
+if [ -n "${1}" ]; then
+  CAPABILITIES="${1}"
+else
+  CAPABILITIES=$(jq -r '.capabilities // "h265"' < "${configfile}")
+fi
 QUALITY=$(jq -r '.quality // "40"' < "${configfile}")
 
 if  grep -q -E 'h265|adaptive' <<< "${CAPABILITIES}"; then
