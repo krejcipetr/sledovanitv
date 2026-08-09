@@ -11,6 +11,7 @@ RUN apk add --no-cache ffmpeg
 RUN pip install --break-system-packages streamlink
 RUN /usr/bin/test -d /usr/local/sledovanitv ] || mkdir /usr/local/sledovanitv
 RUN /usr/bin/test -d /recordings ] || mkdir /recordings
+RUN rm -f /usr/bin/tv_grab_*
 COPY sledovanitv* /usr/local/sledovanitv/
 COPY config/config /config
 COPY config/config.json /config/sledovanitv-config.json

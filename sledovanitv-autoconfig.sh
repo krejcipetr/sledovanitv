@@ -24,10 +24,8 @@ if [ -z "${QUALITY}" ] || [ "${QUALITY}" = "null" ]; then
 fi
 
 if  grep -q -E 'h265|adaptive' <<< ${CAPABILITIES}; then
-#  playback='pipe:///usr/local/sledovanitv/sledovanitv-playbackhls.sh '${cachedir}'/sledovanitv/\(.value.id) \"\(.value.name)\"'
   format=m3u8
 else
-#  playback='pipe:///usr/local/sledovanitv/sledovanitv-playback.sh '${cachedir}'/sledovanitv/\(.value.id) \"\(.value.name)\"'
   format=vlc
 fi
 playback='pipe:///usr/local/sledovanitv/sledovanitv-playback.sh '${cachedir}'/sledovanitv/\(.value.id) \"\(.value.name)\"'
@@ -38,8 +36,8 @@ curl -o "${FILETMP}original" -s -A "VLC/3.0.18 LibVLC/3.0.18" "https://sledovani
 
 # *************************************
 # CHANNELS
-eval "$( jq -r '.channels  | to_entries[] | select (.value.quality ) | "QUALITY\(.value.id | gsub("[^A-Za-z0-9_]"; "_"))=\"\(.value.quality)\"\n"' "${configfile}" )"
-eval "$( jq -r '.channels  | to_entries[] | select (.value.capabilities) | "CAPABILITIES\(.value.id | gsub("[^A-Za-z0-9_]"; "_"))=\"\(.value.capabilities)\"\n"' "${configfile}" )"
+eval "$( jq -r '(.channels // []) | to_entries[] | select ( .value.quality ) | "QUALITY\(.value.id | gsub("[^A-Za-z0-9_]"; "_"))=\"\(.value.quality)\"\n"' "${configfile}" )"
+eval "$( jq -r '(.channels // []) | to_entries[] | select ( .value.capabilities) | "CAPABILITIES\(.value.id | gsub("[^A-Za-z0-9_]"; "_"))=\"\(.value.capabilities)\"\n"' "${configfile}" )"
 
 # *************************************
 # GROUPS
