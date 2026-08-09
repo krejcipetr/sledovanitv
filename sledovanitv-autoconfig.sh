@@ -84,4 +84,4 @@ while read; do eval echo -e "${REPLY}"; done < "${FILETMP}_tmp" >>"${FILETMP}"
 rm "${FILETMP}_tmp"
 
 # Vypis to na STDOUT
-#cat "${FILETMP}"
+cat "${FILETMP}"
