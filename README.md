@@ -18,6 +18,7 @@ Pro Kodi v AmLogic 912/ Linux
 - nahrát do něj soubory z githubu, musí mít právo na spuštění (chmod +x /storage/sledovanitv/sledovanitv*.sh /storage/sledovanitv/sledovanitv*.py)
 - v KODI instalovat balíčky: System Tools, FFmpeg tools, tvheadend server
 - nastaveni casove zony systemu, neplest s TZ v KODI!    echo "TIMEZONE=Europe/Prague" > /storage/.cache/timezone 
+- nelze pouzit h265,adaptive kvuli chybejicimu streamlinku. Pokud by sel doinstalovat, asi neni problem
 
 ### Registrace zařízení
 
@@ -71,7 +72,7 @@ Postup je zcela odlisny od predchozi koncepce, kdy se vkladaly jednotlive MUXy r
 - Konfigurace stitku
   Povolit si co chcete a pripadne nastavit interni a privatni
 
-## Installace na samostatný tvheanded server bez kodi
+## Installace na samostatný tvheanded server bez KODI
 
 Pro tvheanded na samostatném serveru (raspberry pi zero 2W + Raspberry Pi OS)
 - doinstalovat tv_grab_file grabber dle postupu z https://github.com/b-jesch/tv_grab_file  
@@ -103,7 +104,7 @@ Pro jednodussi start v Linuxu
   docker create volume tvsledovaniconfig
   mkdir recordings 
   chown 911:911 recordings  
-  docker run --replace -d --name tvsledovani -e TZ=Europe/Prague -p 9981:9981 -p 9982:9982 -v tvsledovaiconfig:/config -v ${PWD}/recordings:/recordings tvheadendsledovani
+  docker run --replace -d --name tvsledovani -e TZ=Europe/Prague -p 9981:9981 -p 9982:9982 -v tvsledovaniconfig:/config -v ${PWD}/recordings:/recordings --device /dev/dri:/dev/dri tvheadendsledovani
 ```
 ### Registrace
   Registrace se musi pustit po naslednem spusteni
