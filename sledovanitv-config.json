@@ -2,5 +2,12 @@
   "quality": "40",
   "capabilities": "h264,h265,adaptive2,webvtt",
   "pin": "null",
-  "tempdir": "."
+  "tempdir": ".",
+  "channels": [
+    {
+      "id": "amc",
+      "quality": "60",
+      "capabilities": "h264,h265,adaptive2,webvtt"
+    }
+  ]
 }

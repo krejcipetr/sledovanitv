@@ -3,6 +3,7 @@
 configfile="${HOME}"/sledovanitv-config.json
 
 cachedir=$(jq -r '.tempdir // "'"${HOME}"'/.cache"' < "${configfile}")
+echo "cachedir:${cachedir}" >> /dev/stderr
 tokenfile="${cachedir}"/sledovanitv-token
 
 if [ -s "${tokenfile}" ]; then
