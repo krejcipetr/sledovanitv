@@ -1,0 +1,18 @@
+# Lokální a dočasné soubory, které image nepotřebuje
+.git
+.gitignore
+.idea
+.venv
+__pycache__
+*.py[cod]
+*.tar
+
+# Obrázky dokumentace
+*.png
+*.jpg
+*.jpeg
+
+# Lokální cache a editorové soubory
+*.swp
+*.swo
+.DS_Store
