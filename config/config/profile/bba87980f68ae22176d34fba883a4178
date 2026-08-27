@@ -9,8 +9,8 @@
 	"priority": 3,
 	"fpriority": 0,
 	"restart": false,
-	"contaccess": true,
-	"catimeout": 2000,
+	"contaccess": false,
+	"catimeout": 20000,
 	"swservice": true,
 	"svfilter": 0,
 	"shield": true

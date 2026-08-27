@@ -1,8 +1,8 @@
 {
 	"container": 1,
 	"sid": 0,
-	"rewrite_pmt": false,
-	"rewrite_nit": false,
+	"rewrite_pmt": true,
+	"rewrite_nit": true,
 	"pro_vcodec": "webtv-h264",
 	"src_vcodec": [
 	],
