@@ -7,6 +7,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 from streamlink import Streamlink
 
+
 class IPTVProxyHandler(BaseHTTPRequestHandler):
     config_directory = None
 
@@ -26,7 +27,7 @@ class IPTVProxyHandler(BaseHTTPRequestHandler):
         kanal = self.path.strip("/")
 
         # Ochrana před prázdnou nebo nebezpečnou cestou
-        if not kanal or ".." in kanal :
+        if not kanal or ".." in kanal:
             self.send_error(400, "Neplatny nazev kanalu")
             return
 
@@ -35,7 +36,7 @@ class IPTVProxyHandler(BaseHTTPRequestHandler):
         # Načtení aktuální URL ze specifického souboru kanálu
         try:
             with open(cesta_k_souboru, 'r') as f:
-                uri =  f.read().strip()
+                uri = f.read().strip()
 
         except FileNotFoundError:
             self.send_error(404, f"Kanal '{kanal}' nebyl nalezen (soubor '{cesta_k_souboru}' neexistuje)")
@@ -51,7 +52,6 @@ class IPTVProxyHandler(BaseHTTPRequestHandler):
             session = Streamlink()
             session.set_option("mux-subtitles", True)
             session.set_option("hls-live-edge", 2)
-            session.set_option("hls-segment-ignore-redirect", True)
             session.set_option("stream-segment-threads", 3)
 
             streams = session.streams(uri)
@@ -92,6 +92,7 @@ class IPTVProxyHandler(BaseHTTPRequestHandler):
                     break
                 self.wfile.write(data)
                 self.wfile.flush()
+
                 self.transferred_bytes += len(data)
                 if not first_data_sent:
                     first_data_time = time.time()
@@ -115,7 +116,9 @@ class IPTVProxyHandler(BaseHTTPRequestHandler):
                 print(f"[{kanal}] Total transferred: {transferred_mb:.2f} MB, Duration: {stream_duration:.1f}s",
                       flush=True)
             stream_fd.close()
-            print(f"[{kanal}] Streamlink close", flush=True)
+
+        print(f"[{kanal}] Streamlink close", flush=True)
+
 
 def run_server(port):
     server = ThreadingHTTPServer(('127.0.0.1', port), IPTVProxyHandler)
