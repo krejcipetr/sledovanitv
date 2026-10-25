@@ -6,7 +6,8 @@ if grep -q m3u8 "${1}"; then
     exit 0
 fi
 
-ffmpeg -nostats -loglevel panic \
+ffmpeg -nostats \
+  -loglevel error \
   -protocol_whitelist "https,http,tls,file,tcp,crypto,hls" \
   -user_agent "VLC/3.0.18 LibVLC/3.0.18" \
   -i "$(cat "${1}")" \
