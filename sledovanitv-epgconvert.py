@@ -20,14 +20,16 @@ endtime = starttime + datetime.timedelta(days=5)
 currenttime = starttime
 
 sledovaniid = os.environ.get('SLEDOVANITVID', '')
+# XMLTV vyzaduje u hodnoceni i maximum stupnice zdrojoveho API.
+score_max = os.environ.get('SLEDOVANITV_SCORE_MAX', '')
 
 while currenttime < endtime :
-    url= f'https://sledovanitv.cz/api/epg?PHPSESSID={sledovaniid}&detail=1&duration=1439&time={currenttime.strftime("%Y-%m-%d %H:%M:%S")}'
+    url= f'https://sledovanitv.cz/api/epg?PHPSESSID={sledovaniid}&detail=description,score,poster,rating&duration=1439&time={currenttime.strftime("%Y-%m-%d %H:%M:%S")}'
 
     #Nacteni dat z api
     r = requests.get(url)
     epgdata = r.json()
-    
+
     if epgdata['status'] == 0 :
         sys.stderr.write(f"Chyba: Neprobehlo nacteni EPG dat pro cas {currenttime.strftime('%Y-%m-%d %H:%M:%S')}\n")
         break
@@ -63,15 +65,28 @@ while currenttime < endtime :
                  title.text = event['title']
                  title.attrib = {'lang': 'cs'}
 
-
                  desc = ET.SubElement(programme, 'desc')
                  desc.text = event['description']
                  desc.attrib = {'lang': 'cs'}
 
-                 if 'year' in event :
+                 if event.get('year'):
                     date = ET.SubElement(programme, 'date')
                     date.text = str(event['year']) + '0101'
-                    date.attrib = {'lang': 'cs'}
+
+                 if event.get('duration') is not None:
+                     length = ET.SubElement(programme, 'length', units='minutes')
+                     length.text = str(event['duration'])
+
+                 if event.get('poster'):
+                     ET.SubElement(programme, 'icon', src=event['poster'])
+
+                 if event.get('ratingAge') is not None:
+                     rating = ET.SubElement(programme, 'rating')
+                     ET.SubElement(rating, 'value').text = str(event['ratingAge'])
+
+                 if event.get('score') is not None and score_max:
+                     star_rating = ET.SubElement(programme, 'star-rating')
+                     ET.SubElement(star_rating, 'value').text = f"{event['score']}/{score_max}"
 
     currenttime = currenttime + datetime.timedelta(minutes=1440)
 
