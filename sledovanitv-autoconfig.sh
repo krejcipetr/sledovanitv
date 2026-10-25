@@ -1,4 +1,4 @@
-#!  /bin/bash 
+#!  /bin/bash -x
 
 source "$(dirname "${0}")/sledovanitv-token.sh"
 
@@ -23,8 +23,6 @@ if [ -z "${QUALITY}" ] || [ "${QUALITY}" = "null" ]; then
   QUALITY=40
 fi
 
-MSERIAL=$(jq -r '.serial // "unknown"' "${configfile}")
-
 if  grep -q -E 'h265|adaptive' <<< ${CAPABILITIES}; then
   format=m3u8
 else
@@ -34,7 +32,7 @@ playback='pipe:///usr/local/sledovanitv/sledovanitv-playback.sh '${cachedir}'/sl
 
 # *************************************
 # FETCH PLAYLIST
-curl -o "${FILETMP}original" -s -A "VLC/3.0.18 LibVLC/3.0.18" "https://sledovanitv.cz/api/playlist?PHPSESSID=${SLEDOVANITVID}&uuid=${MSERIAL}&format=${format}&quality=${QUALITY}&capabilities=${CAPABILITIES}"
+:q!curl -o "${FILETMP}original" -s -A "VLC/3.0.18 LibVLC/3.0.18" "https://sledovanitv.cz/api/playlist?PHPSESSID=${SLEDOVANITVID}&format=${format}&quality=${QUALITY}&capabilities=${CAPABILITIES}"
 
 # *************************************
 # CHANNELS
@@ -55,8 +53,9 @@ fi
 
 # ****************************************
 # stream URL
-for def in $( jq -r  '.channels | to_entries[] | select ((.value.locked=="none" or .value.locked=="'"${lockedpin}"'") and .value.type=="tv") | "\(.value.id)#\(.value.url)"' "${FILETMP}original" ); do
-  programname=$(echo "${def}" | cut -d# -f1)
+for def in $( jq -r '.channels | to_entries[] | select((.value.locked=="none" or .value.locked=="'"${lockedpin}"'") and .value.type=="tv") | "\(.value.id)#\(.value.url)#\(.value.subtitles[0].url // "")"' "${FILETMP}original" ); do
+  programname="$(echo "${def}" | cut -d# -f1)"
+  subtitle="$(echo "${def}" | cut -d# -f3)"
   filename="${cachedir}/sledovanitv/${programname}"
   safe_programname="${programname//[^A-Za-z0-9_]/_}"
 
@@ -65,12 +64,13 @@ for def in $( jq -r  '.channels | to_entries[] | select ((.value.locked=="none" 
   CHQUALITY="${!quality_var}"
   CHCAPABILITIES="${!capabilities_var}"
 
-  if [ -n "${CHQUALITY}" ] || [ -n "${CHCAPABILITIES}" ]; then
-      url="https://sledovanitv.cz/vlc/api-channel/${programname}.m3u8?quality=${CHQUALITY:-${QUALITY}}&capabilities=${CHCAPABILITIES:-${CAPABILITIES}}&PHPSESSID=${SLEDOVANITVID}"
-  else
+  #if [ -n "${CHQUALITY}" ] || [ -n "${CHCAPABILITIES}" ]; then
+  #    url="https://sledovanitv.cz/vlc/api-channel/${programname}.m3u8?quality=${CHQUALITY:-${QUALITY}}&capabilities=${CHCAPABILITIES:-${CAPABILITIES}}&PHPSESSID=${SLEDOVANITVID}"
+  #else
       url=$(echo "${def}" | cut -d'#' -f2)
-  fi
+  #fi
   echo "${url}" > "${filename}"
+  echo "${subtitle}" >> "${filename}"
 done
 
 # ****************************************

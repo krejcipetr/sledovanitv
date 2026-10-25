@@ -36,7 +36,7 @@ class IPTVProxyHandler(BaseHTTPRequestHandler):
         # Načtení aktuální URL ze specifického souboru kanálu
         try:
             with open(cesta_k_souboru, 'r') as f:
-                uri = f.read().strip()
+                uri = f.readline().strip()
 
         except FileNotFoundError:
             self.send_error(404, f"Kanal '{kanal}' nebyl nalezen (soubor '{cesta_k_souboru}' neexistuje)")
