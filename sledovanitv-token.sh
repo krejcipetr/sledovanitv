@@ -43,4 +43,7 @@ if [ -z "${SLEDOVANITVID}" ]; then
 	if [ "${pin4parents}" != null ]; then
 		curl -s -A "VLC/3.0.18 LibVLC/3.0.18" "https://sledovanitv.cz/api/pin-unlock?pin=${pin4parents}&whitelogo=1&PHPSESSID=${SLEDOVANITVID}" >> /dev/null
 	fi
+
+	# Registrace DRM
+	curl -s -A "VLC/3.0.18 LibVLC/3.0.18" "https://sledovanitv.cz/api/drm-registration?type=widevine&PHPSESSID=${SLEDOVANITVID}" >> /dev/null
 fi

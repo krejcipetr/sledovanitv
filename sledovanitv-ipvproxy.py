@@ -50,9 +50,8 @@ class IPTVProxyHandler(BaseHTTPRequestHandler):
         # Streamlink najde dostupné varianty a vybere nejvyšší kvalitu.
         try:
             session = Streamlink()
-            session.set_option("mux-subtitles", True)
             session.set_option("hls-live-edge", 2)
-            session.set_option("stream-segment-threads", 3)
+            session.set_option("stream-segment-threads", 2)
 
             streams = session.streams(uri)
             stream = streams.get('best')
