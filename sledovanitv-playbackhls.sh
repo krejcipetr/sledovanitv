@@ -1,4 +1,4 @@
-#!  /bin/sh -x
+#!  /bin/sh
 
 # vezmi ze souboru druhy radek a to jsou titulku
 titulky=$(sed -n '2p' "${1}")

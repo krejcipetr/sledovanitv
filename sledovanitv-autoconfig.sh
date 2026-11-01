@@ -1,4 +1,4 @@
-#!  /bin/bash -x
+#!  /bin/bash
 
 source "$(dirname "${0}")/sledovanitv-token.sh"
 
@@ -32,7 +32,7 @@ playback='pipe:///usr/local/sledovanitv/sledovanitv-playback.sh '${cachedir}'/sl
 
 # *************************************
 # FETCH PLAYLIST
-:q!curl -o "${FILETMP}original" -s -A "VLC/3.0.18 LibVLC/3.0.18" "https://sledovanitv.cz/api/playlist?PHPSESSID=${SLEDOVANITVID}&format=${format}&quality=${QUALITY}&capabilities=${CAPABILITIES}"
+curl -o "${FILETMP}original" -s -A "VLC/3.0.18 LibVLC/3.0.18" "https://sledovanitv.cz/api/playlist?PHPSESSID=${SLEDOVANITVID}&format=${format}&quality=${QUALITY}&capabilities=${CAPABILITIES}"
 
 # *************************************
 # CHANNELS
