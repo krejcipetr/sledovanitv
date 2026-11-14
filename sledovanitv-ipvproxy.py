@@ -31,7 +31,9 @@ class IPTVProxyHandler(BaseHTTPRequestHandler):
             self.send_error(400, "Neplatny nazev kanalu")
             return
 
-        cesta_k_souboru = os.path.join(self.config_directory, kanal)
+        cesta_k_souboru = os.path.normpath(os.path.join(self.config_directory, kanal))
+        if not cesta_k_souboru.startswith(self.config_directory):
+            raise Exception("not allowed")
 
         # Načtení aktuální URL ze specifického souboru kanálu
         try:
